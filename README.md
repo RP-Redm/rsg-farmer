@@ -10,6 +10,7 @@
 - qr-core
 
 # Installation
+- add the player_plants.sql to your database
 - ensure that the dependancies are added and started
 - add rsg-farmer to your resources folder
 - add items to your "\qr-core\shared\items.lua"
