@@ -2,7 +2,7 @@ Config = Config or {}
 Config.FarmPlants = {}
 
 -- start plant settings
-Config.GrowthTimer = 1000 -- 60000 = every 1 min / testing 1000 = 1 seconds
+Config.GrowthTimer = 60000 -- 60000 = every 1 min / testing 1000 = 1 seconds
 Config.StartingThirst = 100.0 -- starting plan thirst percentage
 Config.StartingHunger = 100.0 -- starting plan hunger percentage
 Config.HungerIncrease = 25.0 -- amount increased when watered
