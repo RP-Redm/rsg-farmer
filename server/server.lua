@@ -195,17 +195,14 @@ AddEventHandler('rsg-farmer:server:harvestPlant', function(plantId)
     -- give rewards
     if hasFound then
         if poorQuality then
-            --local pooramount = math.random(1,3)
             Player.Functions.AddItem(item, poorAmount)
             TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "add")
             TriggerClientEvent('QRCore:Notify', src, 'You harvest '.. poorAmount ..' '..label, 'success')
         elseif goodQuality then
-            --local goodamount = math.random(3,6)
             Player.Functions.AddItem(item, goodAmount)
             TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "add")
             TriggerClientEvent('QRCore:Notify', src, 'You harvest '.. goodAmount ..' '..label, 'success')
         elseif exellentQuality then
-            --local exellentamount = math.random(6,12)
             Player.Functions.AddItem(item, exellentAmount)
             TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "add")
             TriggerClientEvent('QRCore:Notify', src, 'You harvest '.. exellentAmount ..' '..label, 'success')

@@ -311,7 +311,7 @@ end)
 
 RegisterNetEvent('rsg-farmer:client:plantNewSeed')
 AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed)
-	-- if farming zones are on (true)
+    -- if farming zones are on (true)
     if Config.UseFarmingZones == true then
         if inFarmZone == true then
             local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
