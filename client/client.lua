@@ -26,33 +26,37 @@ end)
 
 -- create farm zones
 CreateThread(function() 
-    for k=1, #Config.FarmZone do
-        Zones[k] = PolyZone:Create(Config.FarmZone[k].zones, {
-            name = Config.FarmZone[k].name,
-            minZ = Config.FarmZone[k].minz,
-            maxZ = Config.FarmZone[k].maxz,
-            debugPoly = false,
-        })
-        Zones[k]:onPlayerInOut(function(isPointInside)
-            if isPointInside then
-                inFarmZone = true
-                zonename = Zones[k].name
-                QRCore.Functions.Notify('you have entered a farm zone', 'primary')
-            else
-                inFarmZone = false
-            end
-        end)
+    if Config.UseFarmingZones == true then
+        for k=1, #Config.FarmZone do
+            Zones[k] = PolyZone:Create(Config.FarmZone[k].zones, {
+                name = Config.FarmZone[k].name,
+                minZ = Config.FarmZone[k].minz,
+                maxZ = Config.FarmZone[k].maxz,
+                debugPoly = false,
+            })
+            Zones[k]:onPlayerInOut(function(isPointInside)
+                if isPointInside then
+                    inFarmZone = true
+                    zonename = Zones[k].name
+                    QRCore.Functions.Notify('you have entered a farm zone', 'primary')
+                else
+                    inFarmZone = false
+                end
+            end)
+        end
     end
 end)
 
 -- create farmzone blips
 Citizen.CreateThread(function()
-    for farmzone, v in pairs(Config.FarmZone) do
-        if v.showblip == true then
-            local FarmZoneBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.blipcoords)
-            SetBlipSprite(FarmZoneBlip, 669307703, true)
-            SetBlipScale(FarmZoneBlip, 0.2)
-            Citizen.InvokeNative(0x9CB1A1623062F402, FarmZoneBlip, 'Farming Zone')
+    if Config.UseFarmingZones == true then
+        for farmzone, v in pairs(Config.FarmZone) do
+            if v.showblip == true then
+                local FarmZoneBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.blipcoords)
+                SetBlipSprite(FarmZoneBlip, 669307703, true)
+                SetBlipScale(FarmZoneBlip, 0.2)
+                Citizen.InvokeNative(0x9CB1A1623062F402, FarmZoneBlip, 'Farming Zone')
+            end
         end
     end
 end)
@@ -307,7 +311,30 @@ end)
 
 RegisterNetEvent('rsg-farmer:client:plantNewSeed')
 AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed)
-    if inFarmZone == true then
+	-- if farming zones are on (true)
+    if Config.UseFarmingZones == true then
+        if inFarmZone == true then
+            local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
+            local ped = PlayerPedId()
+            if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
+                Wait(10000)
+                ClearPedTasks(ped)
+                SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+                TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
+                Wait(20000)
+                ClearPedTasks(ped)
+                SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+                TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
+                TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+            else
+                QRCore.Functions.Notify('too close to another plant!', 'error')
+            end
+        else
+            QRCore.Functions.Notify('you are not in a farming zone!', 'error')
+        end
+    else
+		-- if farming zones are off (false)
         local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
         local ped = PlayerPedId()
         if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
@@ -324,8 +351,6 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
         else
             QRCore.Functions.Notify('too close to another plant!', 'error')
         end
-    else
-        QRCore.Functions.Notify('you are not in a farming zone!', 'error')
     end
 end)
 
