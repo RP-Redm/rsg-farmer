@@ -6,15 +6,25 @@ author 'RexShack#3041'
 description 'rsg-farmer'
 
 client_scripts {
-	'client/client.lua',
-	'client/npc.lua',
+    '@PolyZone/client.lua',
+    '@PolyZone/BoxZone.lua',
+    '@PolyZone/EntityZone.lua',
+    '@PolyZone/CircleZone.lua',
+    '@PolyZone/ComboZone.lua',
+    'client/client.lua',
+    'client/npc.lua',
 }
 
 server_scripts {
-	'server/server.lua',
-	'@oxmysql/lib/MySQL.lua',
+    'server/server.lua',
+    '@oxmysql/lib/MySQL.lua',
 }
 
 shared_scripts { 
-	'config.lua',
+    'config.lua',
 }
+
+dependency 'qr-core'
+dependency 'PolyZone'
+
+lua54 'yes'

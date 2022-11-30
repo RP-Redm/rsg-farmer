@@ -129,3 +129,22 @@ Config.FarmShopLocations = {
 Config.FarmNpc = {
 	[1] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(-249.43, 685.72, 113.33 -1), ["Heading"] = 144.27 }, -- farmer market valentine
 }
+
+-- farm zone settings
+Config.FarmZone = { 
+    [1] = {
+        zones = { -- example
+			vector2(-347.09591674805, 894.11151123047),
+			vector2(-390.92279052734, 889.30194091797),
+			vector2(-392.01412963867, 911.32104492188),
+			vector2(-373.91583251953, 913.11346435547),
+			vector2(-369.53713989258, 944.28149414063),
+			vector2(-349.36514282227, 941.19653320313)
+        },
+		name = "farmzone1",
+		minZ = 115.78807830811,
+		maxZ = 122.06151580811,
+		showblip = true,
+		blipcoords = vector3(-375.72, 900.24, 116.08)
+    },
+}

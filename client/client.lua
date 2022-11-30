@@ -1,6 +1,15 @@
 local QRCore = exports['qr-core']:GetCoreObject()
 local isBusy = false
 local hash = {}
+local SpawnedPlants = {}
+local InteractedPlant = nil
+local HarvestedPlants = {}
+local canHarvest = true
+local closestPlant = nil
+local isDoingAction = false
+local Zones = {}
+local zonename = NIL
+local inFarmZone = false
 isLoggedIn = false
 PlayerJob = {}
 
@@ -15,12 +24,38 @@ AddEventHandler('QRCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
 end)
 
-local SpawnedPlants = {}
-local InteractedPlant = nil
-local HarvestedPlants = {}
-local canHarvest = true
-local closestPlant = nil
-local isDoingAction = false
+-- create farm zones
+CreateThread(function() 
+    for k=1, #Config.FarmZone do
+        Zones[k] = PolyZone:Create(Config.FarmZone[k].zones, {
+            name = Config.FarmZone[k].name,
+            minZ = Config.FarmZone[k].minz,
+            maxZ = Config.FarmZone[k].maxz,
+            debugPoly = false,
+        })
+        Zones[k]:onPlayerInOut(function(isPointInside)
+            if isPointInside then
+                inFarmZone = true
+                zonename = Zones[k].name
+                QRCore.Functions.Notify('you have entered a farm zone', 'primary')
+            else
+                inFarmZone = false
+            end
+        end)
+    end
+end)
+
+-- create farmzone blips
+Citizen.CreateThread(function()
+    for farmzone, v in pairs(Config.FarmZone) do
+        if v.showblip == true then
+            local FarmZoneBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.blipcoords)
+            SetBlipSprite(FarmZoneBlip, 669307703, true)
+            SetBlipScale(FarmZoneBlip, 0.2)
+            Citizen.InvokeNative(0x9CB1A1623062F402, FarmZoneBlip, 'Farming Zone')
+        end
+    end
+end)
 
 Citizen.CreateThread(function()
     while true do
@@ -28,91 +63,91 @@ Citizen.CreateThread(function()
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
     local inRange = false
-		for i = 1, #Config.FarmPlants do
-			local dist = GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z, true)
-			if dist < 50.0 then
-				inRange = true
-				local hasSpawned = false
-				for z = 1, #SpawnedPlants do
-					local p = SpawnedPlants[z]
-					if p.id == Config.FarmPlants[i].id then
-						hasSpawned = true
-					end
-				end
-				if not hasSpawned then
-					local planthash = Config.FarmPlants[i].hash
-					local hash = GetHashKey(planthash)
-					while not HasModelLoaded(hash) do
-						Wait(10)
-						RequestModel(hash)
-					end
-					RequestModel(hash)
-					local data = {}
-					data.id = Config.FarmPlants[i].id
-					data.obj = CreateObject(hash, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z -1.2, false, false, false) 
-					SetEntityAsMissionEntity(data.obj, true)
-					FreezeEntityPosition(data.obj, true)
-					table.insert(SpawnedPlants, data)
-					hasSpawned = false
-				end
-			end
-		end
-		if not InRange then
-			Wait(5000)
-		end
+        for i = 1, #Config.FarmPlants do
+            local dist = GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z, true)
+            if dist < 50.0 then
+                inRange = true
+                local hasSpawned = false
+                for z = 1, #SpawnedPlants do
+                    local p = SpawnedPlants[z]
+                    if p.id == Config.FarmPlants[i].id then
+                        hasSpawned = true
+                    end
+                end
+                if not hasSpawned then
+                    local planthash = Config.FarmPlants[i].hash
+                    local hash = GetHashKey(planthash)
+                    while not HasModelLoaded(hash) do
+                        Wait(10)
+                        RequestModel(hash)
+                    end
+                    RequestModel(hash)
+                    local data = {}
+                    data.id = Config.FarmPlants[i].id
+                    data.obj = CreateObject(hash, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z -1.2, false, false, false) 
+                    SetEntityAsMissionEntity(data.obj, true)
+                    FreezeEntityPosition(data.obj, true)
+                    table.insert(SpawnedPlants, data)
+                    hasSpawned = false
+                end
+            end
+        end
+        if not InRange then
+            Wait(5000)
+        end
     end
 end)
 
 -- destroy plant
 function DestroyPlant()
-	local plant = GetClosestPlant()
-	local hasDone = false
-	for k, v in pairs(HarvestedPlants) do
-		if v == plant.id then
-			hasDone = true
-		end
-	end
-	if not hasDone then
-		table.insert(HarvestedPlants, plant.id)
-		local ped = PlayerPedId()
-		isDoingAction = true
-		TriggerServerEvent('rsg-farmer:server:plantHasBeenHarvested', plant.id)
-		TaskStartScenarioInPlace(ped, `WORLD_HUMAN_CROUCH_INSPECT`, 0, true)
-		Wait(5000)
-		ClearPedTasks(ped)
-		SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-		TriggerServerEvent('rsg-farmer:server:destroyPlant', plant.id)
-		isDoingAction = false
-		canHarvest = true
-	else
-		QRCore.Functions.Notify('error', 'error')
-	end
+    local plant = GetClosestPlant()
+    local hasDone = false
+    for k, v in pairs(HarvestedPlants) do
+        if v == plant.id then
+            hasDone = true
+        end
+    end
+    if not hasDone then
+        table.insert(HarvestedPlants, plant.id)
+        local ped = PlayerPedId()
+        isDoingAction = true
+        TriggerServerEvent('rsg-farmer:server:plantHasBeenHarvested', plant.id)
+        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_CROUCH_INSPECT`, 0, true)
+        Wait(5000)
+        ClearPedTasks(ped)
+        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+        TriggerServerEvent('rsg-farmer:server:destroyPlant', plant.id)
+        isDoingAction = false
+        canHarvest = true
+    else
+        QRCore.Functions.Notify('error', 'error')
+    end
 end
 
 -- havest plants
 function HarvestPlant()
-	local plant = GetClosestPlant()
-	local hasDone = false
-	for k, v in pairs(HarvestedPlants) do
-		if v == plant.id then
-			hasDone = true
-		end
-	end
-	if not hasDone then
-		table.insert(HarvestedPlants, plant.id)
-		local ped = PlayerPedId()
-		isDoingAction = true
-		TriggerServerEvent('rsg-farmer:server:plantHasBeenHarvested', plant.id)
-		TaskStartScenarioInPlace(ped, `WORLD_HUMAN_CROUCH_INSPECT`, 0, true)
-		Wait(10000)
-		ClearPedTasks(ped)
-		SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-		TriggerServerEvent('rsg-farmer:server:harvestPlant', plant.id)
-		isDoingAction = false
-		canHarvest = true
-	else
-		QRCore.Functions.Notify('error', 'error')
-	end
+    local plant = GetClosestPlant()
+    local hasDone = false
+    for k, v in pairs(HarvestedPlants) do
+        if v == plant.id then
+            hasDone = true
+        end
+    end
+    if not hasDone then
+        table.insert(HarvestedPlants, plant.id)
+        local ped = PlayerPedId()
+        isDoingAction = true
+        TriggerServerEvent('rsg-farmer:server:plantHasBeenHarvested', plant.id)
+        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_CROUCH_INSPECT`, 0, true)
+        Wait(10000)
+        ClearPedTasks(ped)
+        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+        TriggerServerEvent('rsg-farmer:server:harvestPlant', plant.id)
+        isDoingAction = false
+        canHarvest = true
+    else
+        QRCore.Functions.Notify('error', 'error')
+    end
 end
 
 function RemovePlantFromTable(plantId)
@@ -125,57 +160,57 @@ end
 
 -- trigger actions
 Citizen.CreateThread(function()
-	while true do
-		Wait(0)
-		local InRange = false
-		local ped = PlayerPedId()
-		local pos = GetEntityCoords(ped)
+    while true do
+        Wait(0)
+        local InRange = false
+        local ped = PlayerPedId()
+        local pos = GetEntityCoords(ped)
 
-		for k, v in pairs(Config.FarmPlants) do
-			if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, v.x, v.y, v.z, true) < 1.3 and not isDoingAction and not v.beingHarvested and not IsPedInAnyVehicle(PlayerPedId(), false) then
-				if PlayerJob.name == 'police' then
-					local plant = GetClosestPlant()
-					DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
-					DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
-					DrawText3D(v.x, v.y, v.z - 0.36, 'Destroy Plant [G]')
-					if IsControlJustPressed(0, QRCore.Shared.Keybinds['G']) then
-						if v.id == plant.id then
-							DestroyPlant()
-						end
-					end
-				else
-					if v.growth < 100 then
-						local plant = GetClosestPlant()
-						DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
-						DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
-						DrawText3D(v.x, v.y, v.z - 0.36, 'Water [G] : Feed [J]')
-						if IsControlJustPressed(0, QRCore.Shared.Keybinds['G']) then
-							if v.id == plant.id then
-								TriggerEvent('rsg-farmer:client:waterPlant')
-							end
-						elseif IsControlJustPressed(0, QRCore.Shared.Keybinds['J']) then
-							if v.id == plant.id then
-								TriggerEvent('rsg-farmer:client:feedPlant')
-							end
-						end
-					else
-						DrawText3D(v.x, v.y, v.z, '[Quality: ' .. v.quality .. ']')
-						DrawText3D(v.x, v.y, v.z - 0.18, 'Harvest [E]')
-						if IsControlJustReleased(0, QRCore.Shared.Keybinds['E']) and canHarvest then
-							local plant = GetClosestPlant()
-							local callpolice = math.random(1,100)
-							if v.id == plant.id then
-								HarvestPlant()
-								if callpolice > 95 then
-									local coords = GetEntityCoords(PlayerPedId())
-									-- alert police action here
-								end
-							end
-						end
-					end
-				end
-			end
-		end
+        for k, v in pairs(Config.FarmPlants) do
+            if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, v.x, v.y, v.z, true) < 1.3 and not isDoingAction and not v.beingHarvested and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                if PlayerJob.name == 'police' then
+                    local plant = GetClosestPlant()
+                    DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
+                    DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
+                    DrawText3D(v.x, v.y, v.z - 0.36, 'Destroy Plant [G]')
+                    if IsControlJustPressed(0, QRCore.Shared.Keybinds['G']) then
+                        if v.id == plant.id then
+                            DestroyPlant()
+                        end
+                    end
+                else
+                    if v.growth < 100 then
+                        local plant = GetClosestPlant()
+                        DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
+                        DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
+                        DrawText3D(v.x, v.y, v.z - 0.36, 'Water [G] : Feed [J]')
+                        if IsControlJustPressed(0, QRCore.Shared.Keybinds['G']) then
+                            if v.id == plant.id then
+                                TriggerEvent('rsg-farmer:client:waterPlant')
+                            end
+                        elseif IsControlJustPressed(0, QRCore.Shared.Keybinds['J']) then
+                            if v.id == plant.id then
+                                TriggerEvent('rsg-farmer:client:feedPlant')
+                            end
+                        end
+                    else
+                        DrawText3D(v.x, v.y, v.z, '[Quality: ' .. v.quality .. ']')
+                        DrawText3D(v.x, v.y, v.z - 0.18, 'Harvest [E]')
+                        if IsControlJustReleased(0, QRCore.Shared.Keybinds['E']) and canHarvest then
+                            local plant = GetClosestPlant()
+                            local callpolice = math.random(1,100)
+                            if v.id == plant.id then
+                                HarvestPlant()
+                                if callpolice > 95 then
+                                    local coords = GetEntityCoords(PlayerPedId())
+                                    -- alert police action here
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
 end)
 
@@ -210,59 +245,59 @@ end)
 -- water plants
 RegisterNetEvent('rsg-farmer:client:waterPlant')
 AddEventHandler('rsg-farmer:client:waterPlant', function()
-	local entity = nil
-	local plant = GetClosestPlant()
-	local ped = PlayerPedId()
-	isDoingAction = true
-	for k, v in pairs(SpawnedPlants) do
-		if v.id == plant.id then
-			entity = v.obj
-		end
-	end
-	local hasItem1 = QRCore.Functions.HasItem('water', 1)
-	local hasItem2 = QRCore.Functions.HasItem('bucket', 1)
-	if hasItem1 and hasItem2 then
-		Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
-		TaskStartScenarioInPlace(ped, `WORLD_HUMAN_BUCKET_POUR_LOW`, 0, true)
-		Wait(10000)
-		ClearPedTasks(ped)
-		SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-		TriggerServerEvent('rsg-farmer:server:waterPlant', plant.id)
-		isDoingAction = false
-	else
-		QRCore.Functions.Notify('You don\'t have the required items!', 'error')
-		Wait(5000)
-		isDoingAction = false
-	end
+    local entity = nil
+    local plant = GetClosestPlant()
+    local ped = PlayerPedId()
+    isDoingAction = true
+    for k, v in pairs(SpawnedPlants) do
+        if v.id == plant.id then
+            entity = v.obj
+        end
+    end
+    local hasItem1 = QRCore.Functions.HasItem('water', 1)
+    local hasItem2 = QRCore.Functions.HasItem('bucket', 1)
+    if hasItem1 and hasItem2 then
+        Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
+        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_BUCKET_POUR_LOW`, 0, true)
+        Wait(10000)
+        ClearPedTasks(ped)
+        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+        TriggerServerEvent('rsg-farmer:server:waterPlant', plant.id)
+        isDoingAction = false
+    else
+        QRCore.Functions.Notify('You don\'t have the required items!', 'error')
+        Wait(5000)
+        isDoingAction = false
+    end
 end)
 
 -- feed plants
 RegisterNetEvent('rsg-farmer:client:feedPlant')
 AddEventHandler('rsg-farmer:client:feedPlant', function()
-	local entity = nil
-	local plant = GetClosestPlant()
-	local ped = PlayerPedId()
-	isDoingAction = true
-	for k, v in pairs(SpawnedPlants) do
-		if v.id == plant.id then
-			entity = v.obj
-		end
-	end
-	local hasItem1 = QRCore.Functions.HasItem('fertilizer', 1)
-	local hasItem2 = QRCore.Functions.HasItem('bucket', 1)
-	if hasItem1 and hasItem2 then
-		Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
-		TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FEED_PIGS`, 0, true)
-		Wait(14000)
-		ClearPedTasks(ped)
-		SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-		TriggerServerEvent('rsg-farmer:server:feedPlant', plant.id)
-		isDoingAction = false
-	else
-		QRCore.Functions.Notify('You don\'t have the required items!', 'error')
-		Wait(5000)
-		isDoingAction = false
-	end
+    local entity = nil
+    local plant = GetClosestPlant()
+    local ped = PlayerPedId()
+    isDoingAction = true
+    for k, v in pairs(SpawnedPlants) do
+        if v.id == plant.id then
+            entity = v.obj
+        end
+    end
+    local hasItem1 = QRCore.Functions.HasItem('fertilizer', 1)
+    local hasItem2 = QRCore.Functions.HasItem('bucket', 1)
+    if hasItem1 and hasItem2 then
+        Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
+        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FEED_PIGS`, 0, true)
+        Wait(14000)
+        ClearPedTasks(ped)
+        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+        TriggerServerEvent('rsg-farmer:server:feedPlant', plant.id)
+        isDoingAction = false
+    else
+        QRCore.Functions.Notify('You don\'t have the required items!', 'error')
+        Wait(5000)
+        isDoingAction = false
+    end
 end)
 
 RegisterNetEvent('rsg-farmer:client:updatePlantData')
@@ -271,21 +306,26 @@ AddEventHandler('rsg-farmer:client:updatePlantData', function(data)
 end)
 
 RegisterNetEvent('rsg-farmer:client:plantNewSeed')
-AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash)
-	local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
-	local ped = PlayerPedId()
-	if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
-		TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
-		Wait(10000)
-		ClearPedTasks(ped)
-		SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-		TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
-		Wait(20000)
-		ClearPedTasks(ped)
-		SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-		TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed)
+    if inFarmZone == true then
+        local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
+        local ped = PlayerPedId()
+        if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+            TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
+            Wait(10000)
+            ClearPedTasks(ped)
+            SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+            TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
+            Wait(20000)
+            ClearPedTasks(ped)
+            SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+            TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
+            TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+        else
+            QRCore.Functions.Notify('too close to another plant!', 'error')
+        end
     else
-		QRCore.Functions.Notify('too close to another plant!', 'error')
+        QRCore.Functions.Notify('you are not in a farming zone!', 'error')
     end
 end)
 
