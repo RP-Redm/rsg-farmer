@@ -11,7 +11,7 @@ Config.Degrade = {min = 3, max = 5}
 Config.QualityDegrade = {min = 8, max = 12}
 Config.GrowthIncrease = {min = 10, max = 20}
 Config.MaxPlantCount = 40 -- maximum plants play can have at any one time
-Config.UseFarmingZones = true
+Config.UseFarmingZones = true -- true = use farmzones / false = no farmzones
 
 -- farm plants
 Config.FarmItems = {
