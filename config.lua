@@ -123,7 +123,7 @@ Config.FarmShop = {
 
 -- farm shop locations
 Config.FarmShopLocations = {
-    {name = 'Farm Shop', coords = vector3(-249.43, 685.72, 113.33), showblip = true},
+    {name = 'Farm Shop', coords = vector3(-249.43, 685.72, 113.33), showblip = true, showmarker = true},
 }
 
 -- farm zone settings

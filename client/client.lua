@@ -390,6 +390,19 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- draw marker if set to true in config
+CreateThread(function()
+    while true do
+        local sleep = 0
+        for farmshop, v in pairs(Config.FarmShopLocations) do
+            if v.showmarker == true then
+                Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
+            end
+        end
+        Wait(sleep)
+    end
+end)
+
 RegisterNetEvent('rsg-farmer:client:OpenFarmShop')
 AddEventHandler('rsg-farmer:client:OpenFarmShop', function()
     local ShopItems = {}
