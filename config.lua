@@ -126,11 +126,6 @@ Config.FarmShopLocations = {
     {name = 'Farm Shop', coords = vector3(-249.43, 685.72, 113.33), showblip = true},
 }
 
--- farm shop npc
-Config.FarmNpc = {
-    [1] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(-249.43, 685.72, 113.33 -1), ["Heading"] = 144.27 }, -- farmer market valentine
-}
-
 -- farm zone settings
 Config.FarmZone = { 
     [1] = {
