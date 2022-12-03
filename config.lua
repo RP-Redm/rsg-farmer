@@ -1,6 +1,10 @@
 Config = Config or {}
 Config.FarmPlants = {}
 
+-- job settings
+Config.EnableJob = false -- (true = job required / false = anyone can farm)
+Config.JobRequired = 'farmer' -- job required to farm (N/A if Config.EnableJob = false)
+
 -- start plant settings
 Config.GrowthTimer = 60000 -- 60000 = every 1 min / testing 1000 = 1 seconds
 Config.StartingThirst = 100.0 -- starting plan thirst percentage

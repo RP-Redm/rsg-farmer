@@ -376,16 +376,34 @@ end
 
 -- start farm shop
 Citizen.CreateThread(function()
-    for farmshop, v in pairs(Config.FarmShopLocations) do
-        exports['qr-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
-            type = 'client',
-            event = 'rsg-farmer:client:OpenFarmShop',
-        })
-        if v.showblip == true then
-            local FarmShopBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
-            SetBlipSprite(FarmShopBlip, GetHashKey(Config.Blip.blipSprite), true)
-            SetBlipScale(FarmShopBlip, Config.Blip.blipScale)
-            Citizen.InvokeNative(0x9CB1A1623062F402, FarmShopBlip, Config.Blip.blipName)
+    if Config.EnableJob == true then
+        local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+        if PlayerJob == Config.JobRequired then
+            for farmshop, v in pairs(Config.FarmShopLocations) do
+                exports['qr-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
+                    type = 'client',
+                    event = 'rsg-farmer:client:OpenFarmShop',
+                })
+                if v.showblip == true then
+                    local FarmShopBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
+                    SetBlipSprite(FarmShopBlip, GetHashKey(Config.Blip.blipSprite), true)
+                    SetBlipScale(FarmShopBlip, Config.Blip.blipScale)
+                    Citizen.InvokeNative(0x9CB1A1623062F402, FarmShopBlip, Config.Blip.blipName)
+                end
+            end
+        end
+    else
+        for farmshop, v in pairs(Config.FarmShopLocations) do
+            exports['qr-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
+                type = 'client',
+                event = 'rsg-farmer:client:OpenFarmShop',
+            })
+            if v.showblip == true then
+                local FarmShopBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
+                SetBlipSprite(FarmShopBlip, GetHashKey(Config.Blip.blipSprite), true)
+                SetBlipScale(FarmShopBlip, Config.Blip.blipScale)
+                Citizen.InvokeNative(0x9CB1A1623062F402, FarmShopBlip, Config.Blip.blipName)
+            end
         end
     end
 end)
@@ -394,9 +412,20 @@ end)
 CreateThread(function()
     while true do
         local sleep = 0
-        for farmshop, v in pairs(Config.FarmShopLocations) do
-            if v.showmarker == true then
-                Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
+        local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+        if Config.EnableJob == true then
+            if PlayerJob == Config.JobRequired then
+                for farmshop, v in pairs(Config.FarmShopLocations) do
+                    if v.showmarker == true then
+                        Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
+                    end
+                end
+            end
+        else
+            for farmshop, v in pairs(Config.FarmShopLocations) do
+                if v.showmarker == true then
+                    Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
+                end
             end
         end
         Wait(sleep)
