@@ -309,11 +309,82 @@ AddEventHandler('rsg-farmer:client:updatePlantData', function(data)
     Config.FarmPlants = data
 end)
 
+-- plant seeds
 RegisterNetEvent('rsg-farmer:client:plantNewSeed')
 AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed)
     -- if farming zones are on (true)
     if Config.UseFarmingZones == true then
-        if inFarmZone == true then
+        if Config.EnableJob == true then
+            local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+            if PlayerJob == Config.JobRequired then
+                if inFarmZone == true then
+                    local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
+                    local ped = PlayerPedId()
+                    if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
+                        Wait(10000)
+                        ClearPedTasks(ped)
+                        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+                        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
+                        Wait(20000)
+                        ClearPedTasks(ped)
+                        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+                        TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
+                        TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+                    else
+                        QRCore.Functions.Notify('too close to another plant!', 'error')
+                    end
+                else
+                    QRCore.Functions.Notify('you are not in a farming zone!', 'error')
+                end
+            else
+                QRCore.Functions.Notify('only farmers can plant seeds!', 'error')
+            end
+        else
+            if inFarmZone == true then
+                local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
+                local ped = PlayerPedId()
+                if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                    TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
+                    Wait(10000)
+                    ClearPedTasks(ped)
+                    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+                    TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
+                    Wait(20000)
+                    ClearPedTasks(ped)
+                    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+                    TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
+                    TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+                else
+                    QRCore.Functions.Notify('too close to another plant!', 'error')
+                end
+            else
+                QRCore.Functions.Notify('you are not in a farming zone!', 'error')
+            end
+        end
+    else
+        -- if farming zones are off (false)
+        if Config.EnableJob == true then
+            local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+            if PlayerJob == Config.JobRequired then
+                local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
+                local ped = PlayerPedId()
+                if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                    TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
+                    Wait(10000)
+                    ClearPedTasks(ped)
+                    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+                    TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
+                    Wait(20000)
+                    ClearPedTasks(ped)
+                    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+                    TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
+                    TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+                else
+                    QRCore.Functions.Notify('too close to another plant!', 'error')
+                end
+            end
+        else
             local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
             local ped = PlayerPedId()
             if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
@@ -330,26 +401,6 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
             else
                 QRCore.Functions.Notify('too close to another plant!', 'error')
             end
-        else
-            QRCore.Functions.Notify('you are not in a farming zone!', 'error')
-        end
-    else
-		-- if farming zones are off (false)
-        local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
-        local ped = PlayerPedId()
-        if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
-            TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
-            Wait(10000)
-            ClearPedTasks(ped)
-            SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-            TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
-            Wait(20000)
-            ClearPedTasks(ped)
-            SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-            TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
-            TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
-        else
-            QRCore.Functions.Notify('too close to another plant!', 'error')
         end
     end
 end)
