@@ -463,8 +463,8 @@ end)
 CreateThread(function()
     while true do
         local sleep = 0
-        local PlayerJob = QRCore.Functions.GetPlayerData().job.name
-        if Config.EnableJob == true then
+        if Config.EnableJob == true and LocalPlayer.state.isLoggedIn then
+            local PlayerJob = QRCore.Functions.GetPlayerData().job.name
             if PlayerJob == Config.JobRequired then
                 for farmshop, v in pairs(Config.FarmShopLocations) do
                     if v.showmarker == true then
