@@ -346,3 +346,12 @@ Citizen.CreateThread(function()
         TriggerEvent('rsg-farmer:server:updatePlants')
     end
 end)
+
+-- give farmer collected water
+RegisterServerEvent('rsg-farmer:server:giveitem')
+AddEventHandler('rsg-farmer:server:giveitem', function(item, amount)
+    local src = source
+    local Player = QRCore.Functions.GetPlayer(src)
+    Player.Functions.AddItem(item, amount)
+    TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "add")
+end)

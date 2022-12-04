@@ -16,6 +16,7 @@ Config.QualityDegrade = {min = 8, max = 12}
 Config.GrowthIncrease = {min = 10, max = 20}
 Config.MaxPlantCount = 40 -- maximum plants play can have at any one time
 Config.UseFarmingZones = true -- true = use farmzones / false = no farmzones
+Config.CollectWaterTime = 30000 -- time set to collect water
 
 -- farm plants
 Config.FarmItems = {
@@ -147,4 +148,12 @@ Config.FarmZone = {
         showblip = true,
         blipcoords = vector3(-375.72, 900.24, 116.08)
     },
+}
+
+Config.WaterProps = {
+    'p_watertrough01x',
+    'p_watertroughsml01x',
+    'p_watertrough01x_new',
+    'p_watertrough02x',
+    'p_watertrough03x',
 }
