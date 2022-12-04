@@ -1,5 +1,7 @@
 local QRCore = exports['qr-core']:GetCoreObject()
 
+---------------------------------------------------------------------------------
+
 -- collect water
 Citizen.CreateThread(function()
     while true do
@@ -14,6 +16,32 @@ Citizen.CreateThread(function()
                     DrawText3Ds(objectPos.x, objectPos.y, objectPos.z + 1.0, "Collect Water [J]")
                     if IsControlJustReleased(0, QRCore.Shared.Keybinds['J']) then 
                         TriggerEvent('rsg-farmer:client:collectwater')
+                    end
+                end
+            end
+        end
+        if awayFromObject then
+            Citizen.Wait(1000)
+        end
+    end
+end)
+
+---------------------------------------------------------------------------------
+
+-- collect poo
+Citizen.CreateThread(function()
+    while true do
+        Wait(0)
+        local pos, awayFromObject = GetEntityCoords(PlayerPedId()), true
+        for i = 1, #Config.FertilizerProps do
+            local pooObject = GetClosestObjectOfType(pos, 5.0, Config.FertilizerProps[i], false, false, false)
+            if pooObject ~= 0 then
+                local objectPos = GetEntityCoords(pooObject)
+                if #(pos - objectPos) < 3.0 then
+                    awayFromObject = false
+                    DrawText3Ds(objectPos.x, objectPos.y, objectPos.z + 0.3, "Pickup Poo [J]")
+                    if IsControlJustReleased(0, QRCore.Shared.Keybinds['J']) then 
+                        TriggerEvent('rsg-farmer:client:collectpoo')
                     end
                 end
             end
@@ -46,6 +74,29 @@ AddEventHandler('rsg-farmer:client:collectwater', function()
         end
     else
         QRCore.Functions.Notify('only farmers can collect water!', 'error')
+    end
+end)
+
+-- do collecting poo
+RegisterNetEvent('rsg-farmer:client:collectpoo')
+AddEventHandler('rsg-farmer:client:collectpoo', function()
+    local hasItem = QRCore.Functions.HasItem('bucket', 1)
+    local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+    if PlayerJob == Config.JobRequired then
+        if hasItem and PlayerJob == Config.JobRequired then
+            QRCore.Functions.Progressbar("collecting-poo", "Collecting Poo..", Config.CollectPooTime, false, true, {
+                disableMovement = true,
+                disableCarMovement = false,
+                disableMouse = false,
+                disableCombat = true,
+            }, {}, {}, {}, function() -- Done
+                TriggerServerEvent('rsg-farmer:server:giveitem', 'fertilizer', 1)
+            end)
+        else
+            QRCore.Functions.Notify('you need a bucket!', 'error')
+        end
+    else
+        QRCore.Functions.Notify('only farmers can collect poo!', 'error')
     end
 end)
 

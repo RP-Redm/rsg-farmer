@@ -17,6 +17,7 @@ Config.GrowthIncrease = {min = 10, max = 20}
 Config.MaxPlantCount = 40 -- maximum plants play can have at any one time
 Config.UseFarmingZones = true -- true = use farmzones / false = no farmzones
 Config.CollectWaterTime = 30000 -- time set to collect water
+Config.CollectPooTime = 30000 -- time set to collect fertilizer
 
 -- farm plants
 Config.FarmItems = {
@@ -156,4 +157,8 @@ Config.WaterProps = {
     'p_watertrough01x_new',
     'p_watertrough02x',
     'p_watertrough03x',
+}
+
+Config.FertilizerProps = {
+    -1234923324,
 }
