@@ -34,7 +34,7 @@ Citizen.CreateThread(function()
         Wait(0)
         local pos, awayFromObject = GetEntityCoords(PlayerPedId()), true
         for i = 1, #Config.FertilizerProps do
-            local pooObject = GetClosestObjectOfType(pos, 5.0, Config.FertilizerProps[i], false, false, false)
+            local pooObject = GetClosestObjectOfType(pos, 5.0, GetHashKey(Config.FertilizerProps[i]), false, false, false)
             if pooObject ~= 0 then
                 local objectPos = GetEntityCoords(pooObject)
                 if #(pos - objectPos) < 3.0 then

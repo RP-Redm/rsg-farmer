@@ -160,5 +160,20 @@ Config.WaterProps = {
 }
 
 Config.FertilizerProps = {
-    -1234923324,
+    'p_horsepoop02x',
+	'p_horsepoop03x',
+	'new_p_horsepoop02x_static',
+	'p_poop01x',
+	'p_poop02x',
+	'p_poopile01x',
+	'p_sheeppoop01',
+	'p_sheeppoop02x',
+	'p_sheeppoop03x',
+	'p_wolfpoop01x',
+	'p_wolfpoop02x',
+	'p_wolfpoop03x',
+	's_horsepoop01x',
+	's_horsepoop02x',
+	's_horsepoop03x',
+	'mp007_p_mp_horsepoop03x',
 }
