@@ -320,7 +320,8 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                 if inFarmZone == true then
                     local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
                     local ped = PlayerPedId()
-                    if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                    if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and isBusy == false then
+                        isBusy = true
                         TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
                         Wait(10000)
                         ClearPedTasks(ped)
@@ -331,6 +332,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                         SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
                         TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
                         TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+                        isBusy = false
                     else
                         QRCore.Functions.Notify('too close to another plant!', 'error')
                     end
@@ -344,7 +346,8 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
             if inFarmZone == true then
                 local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
                 local ped = PlayerPedId()
-                if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and isBusy == false then
+                    isBusy = true
                     TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
                     Wait(10000)
                     ClearPedTasks(ped)
@@ -355,6 +358,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                     SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
                     TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
                     TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+                    isBusy = false
                 else
                     QRCore.Functions.Notify('too close to another plant!', 'error')
                 end
@@ -369,7 +373,8 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
             if PlayerJob == Config.JobRequired then
                 local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
                 local ped = PlayerPedId()
-                if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and isBusy == false then
+                    isBusy = true
                     TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
                     Wait(10000)
                     ClearPedTasks(ped)
@@ -380,6 +385,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                     SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
                     TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
                     TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+                    isBusy = false
                 else
                     QRCore.Functions.Notify('too close to another plant!', 'error')
                 end
@@ -387,7 +393,8 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
         else
             local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
             local ped = PlayerPedId()
-            if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) then
+            if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and isBusy == false then
+                isBusy = true
                 TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
                 Wait(10000)
                 ClearPedTasks(ped)
@@ -398,6 +405,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                 SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
                 TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
                 TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+                isBusy = false
             else
                 QRCore.Functions.Notify('too close to another plant!', 'error')
             end
