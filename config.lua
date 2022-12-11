@@ -7,6 +7,7 @@ Config.JobRequired = 'farmer' -- job required to farm (N/A if Config.EnableJob =
 
 -- start plant settings
 Config.GrowthTimer = 60000 -- 60000 = every 1 min / testing 1000 = 1 seconds
+Config.DeadPlantTime = 60 * 60 * 72 -- time until plant is dead and removed from db - e.g. 60 * 60 * 24 for 1 day / 60 * 60 * 48 for 2 days / 60 * 60 * 72 for 3 days
 Config.StartingThirst = 100.0 -- starting plan thirst percentage
 Config.StartingHunger = 100.0 -- starting plan hunger percentage
 Config.HungerIncrease = 25.0 -- amount increased when watered

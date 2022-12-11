@@ -110,7 +110,8 @@ AddEventHandler('rsg-farmer:server:plantNewSeed', function(planttype, location, 
         grace = true,
         hash = hash,
         beingHarvested = false, 
-        planter = Player.PlayerData.citizenid
+        planter = Player.PlayerData.citizenid,
+        planttime = os.time(),
     }
 
     local PlantCount = 0
@@ -339,6 +340,14 @@ Citizen.CreateThread(function()
                     if Config.FarmPlants[i].thirst < 75 or Config.FarmPlants[i].hunger < 75 then
                         Config.FarmPlants[i].quality = Config.FarmPlants[i].quality - 1
                     end
+                end
+            else
+                local untildead = Config.FarmPlants[i].planttime + Config.DeadPlantTime
+                local currenttime = os.time()
+                if currenttime > untildead then
+                    deadid = Config.FarmPlants[i].id
+                    print('Removing Dead Plant with ID '..deadid)
+                    TriggerEvent('rsg-farmer:server:PlantRemoved', deadid)
                 end
             end
             TriggerEvent('rsg-farmer:server:updateFarmPlants', Config.FarmPlants[i].id, Config.FarmPlants[i])
