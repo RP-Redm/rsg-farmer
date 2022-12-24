@@ -1,4 +1,4 @@
-local QRCore = exports['qr-core']:GetCoreObject()
+local RSGCore = exports['rsg-core']:GetCoreObject()
 local isBusy = false
 local hash = {}
 local SpawnedPlants = {}
@@ -13,14 +13,14 @@ local inFarmZone = false
 isLoggedIn = false
 PlayerJob = {}
 
-RegisterNetEvent('QRCore:Client:OnPlayerLoaded')
-AddEventHandler('QRCore:Client:OnPlayerLoaded', function()
+RegisterNetEvent('RSGCore:Client:OnPlayerLoaded')
+AddEventHandler('RSGCore:Client:OnPlayerLoaded', function()
     isLoggedIn = true
-    PlayerJob = QRCore.Functions.GetPlayerData().job
+    PlayerJob = RSGCore.Functions.GetPlayerData().job
 end)
 
-RegisterNetEvent('QRCore:Client:OnJobUpdate')
-AddEventHandler('QRCore:Client:OnJobUpdate', function(JobInfo)
+RegisterNetEvent('RSGCore:Client:OnJobUpdate')
+AddEventHandler('RSGCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
 end)
 
@@ -38,7 +38,7 @@ CreateThread(function()
                 if isPointInside then
                     inFarmZone = true
                     zonename = Zones[k].name
-                    QRCore.Functions.Notify('you have entered a farm zone', 'primary')
+                    RSGCore.Functions.Notify('you have entered a farm zone', 'primary')
                 else
                     inFarmZone = false
                 end
@@ -124,7 +124,7 @@ function DestroyPlant()
         isDoingAction = false
         canHarvest = true
     else
-        QRCore.Functions.Notify('error', 'error')
+        RSGCore.Functions.Notify('error', 'error')
     end
 end
 
@@ -150,7 +150,7 @@ function HarvestPlant()
         isDoingAction = false
         canHarvest = true
     else
-        QRCore.Functions.Notify('error', 'error')
+        RSGCore.Functions.Notify('error', 'error')
     end
 end
 
@@ -177,7 +177,7 @@ Citizen.CreateThread(function()
                     DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
                     DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
                     DrawText3D(v.x, v.y, v.z - 0.36, 'Destroy Plant [G]')
-                    if IsControlJustPressed(0, QRCore.Shared.Keybinds['G']) then
+                    if IsControlJustPressed(0, RSGCore.Shared.Keybinds['G']) then
                         if v.id == plant.id then
                             DestroyPlant()
                         end
@@ -188,11 +188,11 @@ Citizen.CreateThread(function()
                         DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
                         DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
                         DrawText3D(v.x, v.y, v.z - 0.36, 'Water [G] : Feed [J]')
-                        if IsControlJustPressed(0, QRCore.Shared.Keybinds['G']) then
+                        if IsControlJustPressed(0, RSGCore.Shared.Keybinds['G']) then
                             if v.id == plant.id then
                                 TriggerEvent('rsg-farmer:client:waterPlant')
                             end
-                        elseif IsControlJustPressed(0, QRCore.Shared.Keybinds['J']) then
+                        elseif IsControlJustPressed(0, RSGCore.Shared.Keybinds['J']) then
                             if v.id == plant.id then
                                 TriggerEvent('rsg-farmer:client:feedPlant')
                             end
@@ -200,7 +200,7 @@ Citizen.CreateThread(function()
                     else
                         DrawText3D(v.x, v.y, v.z, '[Quality: ' .. v.quality .. ']')
                         DrawText3D(v.x, v.y, v.z - 0.18, 'Harvest [E]')
-                        if IsControlJustReleased(0, QRCore.Shared.Keybinds['E']) and canHarvest then
+                        if IsControlJustReleased(0, RSGCore.Shared.Keybinds['E']) and canHarvest then
                             local plant = GetClosestPlant()
                             local callpolice = math.random(1,100)
                             if v.id == plant.id then
@@ -258,8 +258,8 @@ AddEventHandler('rsg-farmer:client:waterPlant', function()
             entity = v.obj
         end
     end
-    local hasItem1 = QRCore.Functions.HasItem('water', 1)
-    local hasItem2 = QRCore.Functions.HasItem('bucket', 1)
+    local hasItem1 = RSGCore.Functions.HasItem('water', 1)
+    local hasItem2 = RSGCore.Functions.HasItem('bucket', 1)
     if hasItem1 and hasItem2 then
         Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
         TaskStartScenarioInPlace(ped, `WORLD_HUMAN_BUCKET_POUR_LOW`, 0, true)
@@ -269,7 +269,7 @@ AddEventHandler('rsg-farmer:client:waterPlant', function()
         TriggerServerEvent('rsg-farmer:server:waterPlant', plant.id)
         isDoingAction = false
     else
-        QRCore.Functions.Notify('You don\'t have the required items!', 'error')
+        RSGCore.Functions.Notify('You don\'t have the required items!', 'error')
         Wait(5000)
         isDoingAction = false
     end
@@ -287,8 +287,8 @@ AddEventHandler('rsg-farmer:client:feedPlant', function()
             entity = v.obj
         end
     end
-    local hasItem1 = QRCore.Functions.HasItem('fertilizer', 1)
-    local hasItem2 = QRCore.Functions.HasItem('bucket', 1)
+    local hasItem1 = RSGCore.Functions.HasItem('fertilizer', 1)
+    local hasItem2 = RSGCore.Functions.HasItem('bucket', 1)
     if hasItem1 and hasItem2 then
         Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
         TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FEED_PIGS`, 0, true)
@@ -298,7 +298,7 @@ AddEventHandler('rsg-farmer:client:feedPlant', function()
         TriggerServerEvent('rsg-farmer:server:feedPlant', plant.id)
         isDoingAction = false
     else
-        QRCore.Functions.Notify('You don\'t have the required items!', 'error')
+        RSGCore.Functions.Notify('You don\'t have the required items!', 'error')
         Wait(5000)
         isDoingAction = false
     end
@@ -315,7 +315,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
     -- if farming zones are on (true)
     if Config.UseFarmingZones == true then
         if Config.EnableJob == true then
-            local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+            local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
             if PlayerJob == Config.JobRequired then
                 if inFarmZone == true then
                     local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
@@ -334,13 +334,13 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                         TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
                         isBusy = false
                     else
-                        QRCore.Functions.Notify('too close to another plant!', 'error')
+                        RSGCore.Functions.Notify('too close to another plant!', 'error')
                     end
                 else
-                    QRCore.Functions.Notify('you are not in a farming zone!', 'error')
+                    RSGCore.Functions.Notify('you are not in a farming zone!', 'error')
                 end
             else
-                QRCore.Functions.Notify('only farmers can plant seeds!', 'error')
+                RSGCore.Functions.Notify('only farmers can plant seeds!', 'error')
             end
         else
             if inFarmZone == true then
@@ -360,16 +360,16 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                     TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
                     isBusy = false
                 else
-                    QRCore.Functions.Notify('too close to another plant!', 'error')
+                    RSGCore.Functions.Notify('too close to another plant!', 'error')
                 end
             else
-                QRCore.Functions.Notify('you are not in a farming zone!', 'error')
+                RSGCore.Functions.Notify('you are not in a farming zone!', 'error')
             end
         end
     else
         -- if farming zones are off (false)
         if Config.EnableJob == true then
-            local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+            local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
             if PlayerJob == Config.JobRequired then
                 local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
                 local ped = PlayerPedId()
@@ -387,7 +387,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                     TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
                     isBusy = false
                 else
-                    QRCore.Functions.Notify('too close to another plant!', 'error')
+                    RSGCore.Functions.Notify('too close to another plant!', 'error')
                 end
             end
         else
@@ -407,7 +407,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
                 TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
                 isBusy = false
             else
-                QRCore.Functions.Notify('too close to another plant!', 'error')
+                RSGCore.Functions.Notify('too close to another plant!', 'error')
             end
         end
     end
@@ -436,10 +436,10 @@ end
 -- start farm shop
 Citizen.CreateThread(function()
     if Config.EnableJob == true then
-        local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+        local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
         if PlayerJob == Config.JobRequired then
             for farmshop, v in pairs(Config.FarmShopLocations) do
-                exports['qr-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
+                exports['rsg-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
                     type = 'client',
                     event = 'rsg-farmer:client:OpenFarmShop',
                 })
@@ -453,7 +453,7 @@ Citizen.CreateThread(function()
         end
     else
         for farmshop, v in pairs(Config.FarmShopLocations) do
-            exports['qr-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
+            exports['rsg-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
                 type = 'client',
                 event = 'rsg-farmer:client:OpenFarmShop',
             })
@@ -472,7 +472,7 @@ CreateThread(function()
     while true do
         local sleep = 0
         if Config.EnableJob == true and LocalPlayer.state.isLoggedIn then
-            local PlayerJob = QRCore.Functions.GetPlayerData().job.name
+            local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
             if PlayerJob == Config.JobRequired then
                 for farmshop, v in pairs(Config.FarmShopLocations) do
                     if v.showmarker == true then

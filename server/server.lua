@@ -1,54 +1,54 @@
-local QRCore = exports['qr-core']:GetCoreObject()
+local RSGCore = exports['rsg-core']:GetCoreObject()
 local PlantsLoaded = false
 
 -----------------------------------------------------------------------
 
 -- cornseed
-QRCore.Functions.CreateUseableItem("cornseed", function(source, item)
+RSGCore.Functions.CreateUseableItem("cornseed", function(source, item)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     TriggerClientEvent('rsg-farmer:client:plantNewSeed', src, 'corn', 'CRP_CORNSTALKS_AB_SIM', 'cornseed')
 end)
 
 -- sugarseed
-QRCore.Functions.CreateUseableItem("sugarseed", function(source, item)
+RSGCore.Functions.CreateUseableItem("sugarseed", function(source, item)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     TriggerClientEvent('rsg-farmer:client:plantNewSeed', src, 'sugar', 'CRP_SUGARCANE_AC_SIM', 'sugarseed')
 end)
 
 -- tobaccoseed
-QRCore.Functions.CreateUseableItem("tobaccoseed", function(source, item)
+RSGCore.Functions.CreateUseableItem("tobaccoseed", function(source, item)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     TriggerClientEvent('rsg-farmer:client:plantNewSeed', src, 'tobacco', 'CRP_TOBACCOPLANT_AC_SIM', 'tobaccoseed')
 end)
 
 -- carrotseed
-QRCore.Functions.CreateUseableItem("carrotseed", function(source, item)
+RSGCore.Functions.CreateUseableItem("carrotseed", function(source, item)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     TriggerClientEvent('rsg-farmer:client:plantNewSeed', src, 'carrot', 'CRP_CARROTS_AA_SIM', 'carrotseed')
 end)
 
 -- tomatoseed
-QRCore.Functions.CreateUseableItem("tomatoseed", function(source, item)
+RSGCore.Functions.CreateUseableItem("tomatoseed", function(source, item)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     TriggerClientEvent('rsg-farmer:client:plantNewSeed', src, 'tomato', 'CRP_TOMATOES_AA_SIM', 'tomatoseed')
 end)
 
 -- broccoliseed
-QRCore.Functions.CreateUseableItem("broccoliseed", function(source, item)
+RSGCore.Functions.CreateUseableItem("broccoliseed", function(source, item)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     TriggerClientEvent('rsg-farmer:client:plantNewSeed', src, 'broccoli', 'crp_broccoli_aa_sim', 'broccoliseed')
 end)
 
 -- potatoseed
-QRCore.Functions.CreateUseableItem("potatoseed", function(source, item)
+RSGCore.Functions.CreateUseableItem("potatoseed", function(source, item)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     TriggerClientEvent('rsg-farmer:client:plantNewSeed', src, 'potato', 'crp_potato_aa_sim', 'potatoseed')
 end)
 
@@ -58,9 +58,9 @@ end)
 RegisterServerEvent('rsg-farmer:server:removeitem')
 AddEventHandler('rsg-farmer:server:removeitem', function(item, amount)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     Player.Functions.RemoveItem(item, amount)
-    TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "remove")
+    TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[item], "remove")
 end)
 
 -----------------------------------------------------------------------
@@ -95,7 +95,7 @@ RegisterServerEvent('rsg-farmer:server:plantNewSeed')
 AddEventHandler('rsg-farmer:server:plantNewSeed', function(planttype, location, hash)
     local src = source
     local plantId = math.random(111111, 999999)
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     local citizenid = Player.PlayerData.citizenid 
     local SeedData = {
         id = plantId, 
@@ -123,7 +123,7 @@ AddEventHandler('rsg-farmer:server:plantNewSeed', function(planttype, location, 
     end
 
     if PlantCount >= Config.MaxPlantCount then
-        TriggerClientEvent('QRCore:Notify', src, 'You already have ' .. Config.MaxPlantCount .. ' plants down', 'error')
+        TriggerClientEvent('RSGCore:Notify', src, 'You already have ' .. Config.MaxPlantCount .. ' plants down', 'error')
     else
         table.insert(Config.FarmPlants, SeedData)
         TriggerEvent('rsg-farmer:server:savePlant', SeedData, plantId, citizenid)
@@ -146,7 +146,7 @@ end)
 RegisterServerEvent('rsg-farmer:server:destroyPlant')
 AddEventHandler('rsg-farmer:server:destroyPlant', function(plantId)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     for k, v in pairs(Config.FarmPlants) do
         if v.id == plantId then
             table.remove(Config.FarmPlants, k)
@@ -155,14 +155,14 @@ AddEventHandler('rsg-farmer:server:destroyPlant', function(plantId)
     TriggerClientEvent('rsg-farmer:client:removePlantObject', src, plantId)
     TriggerEvent('rsg-farmer:server:PlantRemoved', plantId)
     TriggerEvent('rsg-farmer:server:updatePlants')
-    TriggerClientEvent('QRCore:Notify', src, 'you distroyed the plant', 'success')
+    TriggerClientEvent('RSGCore:Notify', src, 'you distroyed the plant', 'success')
 end)
 
 -- harvest plant and give reward
 RegisterServerEvent('rsg-farmer:server:harvestPlant')
 AddEventHandler('rsg-farmer:server:harvestPlant', function(plantId)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     local poorAmount = 0
     local goodAmount = 0
     local exellentAmount = 0
@@ -197,16 +197,16 @@ AddEventHandler('rsg-farmer:server:harvestPlant', function(plantId)
     if hasFound then
         if poorQuality then
             Player.Functions.AddItem(item, poorAmount)
-            TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "add")
-            TriggerClientEvent('QRCore:Notify', src, 'You harvest '.. poorAmount ..' '..label, 'success')
+            TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[item], "add")
+            TriggerClientEvent('RSGCore:Notify', src, 'You harvest '.. poorAmount ..' '..label, 'success')
         elseif goodQuality then
             Player.Functions.AddItem(item, goodAmount)
-            TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "add")
-            TriggerClientEvent('QRCore:Notify', src, 'You harvest '.. goodAmount ..' '..label, 'success')
+            TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[item], "add")
+            TriggerClientEvent('RSGCore:Notify', src, 'You harvest '.. goodAmount ..' '..label, 'success')
         elseif exellentQuality then
             Player.Functions.AddItem(item, exellentAmount)
-            TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "add")
-            TriggerClientEvent('QRCore:Notify', src, 'You harvest '.. exellentAmount ..' '..label, 'success')
+            TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[item], "add")
+            TriggerClientEvent('RSGCore:Notify', src, 'You harvest '.. exellentAmount ..' '..label, 'success')
         else
             print("something went wrong!")
         end
@@ -226,7 +226,7 @@ end)
 RegisterServerEvent('rsg-farmer:server:waterPlant')
 AddEventHandler('rsg-farmer:server:waterPlant', function(plantId)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     for k, v in pairs(Config.FarmPlants) do
         if v.id == plantId then
             Config.FarmPlants[k].thirst = Config.FarmPlants[k].thirst + Config.ThirstIncrease
@@ -236,7 +236,7 @@ AddEventHandler('rsg-farmer:server:waterPlant', function(plantId)
         end
     end
     Player.Functions.RemoveItem('water', 1)
-    TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items['water'], "remove")
+    TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items['water'], "remove")
     TriggerEvent('rsg-farmer:server:updatePlants')
 end)
 
@@ -244,7 +244,7 @@ end)
 RegisterServerEvent('rsg-farmer:server:feedPlant')
 AddEventHandler('rsg-farmer:server:feedPlant', function(plantId)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     for k, v in pairs(Config.FarmPlants) do
         if v.id == plantId then
             Config.FarmPlants[k].hunger = Config.FarmPlants[k].hunger + Config.HungerIncrease
@@ -254,7 +254,7 @@ AddEventHandler('rsg-farmer:server:feedPlant', function(plantId)
         end
     end
     Player.Functions.RemoveItem('fertilizer', 1)
-    TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items['fertilizer'], "remove")
+    TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items['fertilizer'], "remove")
     TriggerEvent('rsg-farmer:server:updatePlants')
 end)
 
@@ -360,7 +360,7 @@ end)
 RegisterServerEvent('rsg-farmer:server:giveitem')
 AddEventHandler('rsg-farmer:server:giveitem', function(item, amount)
     local src = source
-    local Player = QRCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
     Player.Functions.AddItem(item, amount)
-    TriggerClientEvent('inventory:client:ItemBox', src, QRCore.Shared.Items[item], "add")
+    TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[item], "add")
 end)

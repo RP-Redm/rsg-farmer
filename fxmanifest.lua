@@ -24,7 +24,7 @@ shared_scripts {
     'config.lua',
 }
 
-dependency 'qr-core'
+dependency 'rsg-core'
 dependency 'PolyZone'
 
 lua54 'yes'
