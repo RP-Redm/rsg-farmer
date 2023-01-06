@@ -17,6 +17,8 @@ Config.QualityDegrade = {min = 8, max = 12}
 Config.GrowthIncrease = {min = 10, max = 20}
 Config.MaxPlantCount = 40 -- maximum plants play can have at any one time
 Config.UseFarmingZones = true -- true = use farmzones / false = no farmzones
+Config.UseSeedBasedZones = true -- true = use seed based farmzones / false = no seed based specific farmzones
+Config.NotificationSound = true -- when UseSeedBasedZones is enabled, play notification sound when the player is doing some actions
 Config.CollectWaterTime = 30000 -- time set to collect water
 Config.CollectPooTime = 30000 -- time set to collect fertilizer
 
@@ -145,6 +147,7 @@ Config.FarmZone = {
             vector2(-349.36514282227, 941.19653320313)
         },
         name = "farmzone1",
+        blipname = 'farmzone1 Farm Zone',
         minZ = 115.78807830811,
         maxZ = 122.06151580811,
         showblip = true,
