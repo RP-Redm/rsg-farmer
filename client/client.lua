@@ -10,6 +10,8 @@ local isDoingAction = false
 local Zones = {}
 local zonename = NIL
 local inFarmZone = false
+local farmZoneRequired = false
+local seedBasedZones = false
 isLoggedIn = false
 PlayerJob = {}
 
@@ -24,40 +26,62 @@ AddEventHandler('RSGCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
 end)
 
--- create farm zones
-CreateThread(function() 
-    if Config.UseFarmingZones == true then
-        for k=1, #Config.FarmZone do
-            Zones[k] = PolyZone:Create(Config.FarmZone[k].zones, {
-                name = Config.FarmZone[k].name,
-                minZ = Config.FarmZone[k].minz,
-                maxZ = Config.FarmZone[k].maxz,
-                debugPoly = false,
-            })
-            Zones[k]:onPlayerInOut(function(isPointInside)
-                if isPointInside then
-                    inFarmZone = true
-                    zonename = Zones[k].name
-                    RSGCore.Functions.Notify('you have entered a farm zone', 'primary')
-                else
-                    inFarmZone = false
-                end
-            end)
-        end
+-- Create Farm Zones
+CreateThread(function()
+    if not Config.UseFarmingZones then return end
+
+    for k=1, #Config.FarmZone do
+        Zones[k] = PolyZone:Create(Config.FarmZone[k].zones, {
+            name = Config.FarmZone[k].name,
+            minZ = Config.FarmZone[k].minz,
+            maxZ = Config.FarmZone[k].maxz,
+            debugPoly = false,
+        })
+
+        Zones[k]:onPlayerInOut(function(isPointInside)
+            if not isPointInside then
+                inFarmZone = false
+                return
+            end
+
+            inFarmZone = true
+            zonename = Zones[k].name
+
+            -- Seed Based Farm Zone
+            if not Config.UseSeedBasedZones then
+                RSGCore.Functions.Notify('You have entered a farm zone!', 'primary', 3000)
+                return
+            end
+
+            local msg = 'You have entered a '..zonename..' farm zone!'
+            local msg1 = 'You may only plant '..zonename..' seeds here!'
+
+            RSGCore.Functions.Notify(msg, 'primary', 3000)
+
+            if Config.NotificationSound then
+                NotificationSound(msg1)
+            end
+        end)
     end
 end)
 
--- create farmzone blips
+-- Create Farm Zone Blips
 Citizen.CreateThread(function()
-    if Config.UseFarmingZones == true then
-        for farmzone, v in pairs(Config.FarmZone) do
-            if v.showblip == true then
-                local FarmZoneBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.blipcoords)
-                SetBlipSprite(FarmZoneBlip, 669307703, true)
-                SetBlipScale(FarmZoneBlip, 0.2)
-                Citizen.InvokeNative(0x9CB1A1623062F402, FarmZoneBlip, 'Farming Zone')
-            end
+    if not Config.UseFarmingZones then return end
+
+    for farmzone, v in pairs(Config.FarmZone) do
+        if not v.showblip then return end
+
+        local FarmZoneBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.blipcoords)
+        local blipName = 'Farming Zone'
+
+        if Config.UseSeedBasedZones then
+            blipName = v.blipname
         end
+
+        SetBlipSprite(FarmZoneBlip, 669307703, true)
+        SetBlipScale(FarmZoneBlip, 0.2)
+        Citizen.InvokeNative(0x9CB1A1623062F402, FarmZoneBlip, blipName)
     end
 end)
 
@@ -166,13 +190,15 @@ end
 Citizen.CreateThread(function()
     while true do
         Wait(0)
+
         local InRange = false
         local ped = PlayerPedId()
         local pos = GetEntityCoords(ped)
+        local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
 
         for k, v in pairs(Config.FarmPlants) do
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, v.x, v.y, v.z, true) < 1.3 and not isDoingAction and not v.beingHarvested and not IsPedInAnyVehicle(PlayerPedId(), false) then
-                if PlayerJob.name == 'police' then
+                if PlayerJob == 'police' then
                     local plant = GetClosestPlant()
                     DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
                     DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
@@ -309,108 +335,69 @@ AddEventHandler('rsg-farmer:client:updatePlantData', function(data)
     Config.FarmPlants = data
 end)
 
--- plant seeds
+-- Plant Seeds
 RegisterNetEvent('rsg-farmer:client:plantNewSeed')
 AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed)
-    -- if farming zones are on (true)
-    if Config.UseFarmingZones == true then
-        if Config.EnableJob == true then
-            local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
-            if PlayerJob == Config.JobRequired then
-                if inFarmZone == true then
-                    local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
-                    local ped = PlayerPedId()
-                    if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and isBusy == false then
-                        isBusy = true
-                        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
-                        Wait(10000)
-                        ClearPedTasks(ped)
-                        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-                        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
-                        Wait(20000)
-                        ClearPedTasks(ped)
-                        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-                        TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
-                        TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
-                        isBusy = false
-                    else
-                        RSGCore.Functions.Notify('too close to another plant!', 'error')
-                    end
-                else
-                    RSGCore.Functions.Notify('you are not in a farming zone!', 'error')
-                end
-            else
-                RSGCore.Functions.Notify('only farmers can plant seeds!', 'error')
-            end
-        else
-            if inFarmZone == true then
-                local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
-                local ped = PlayerPedId()
-                if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and isBusy == false then
-                    isBusy = true
-                    TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
-                    Wait(10000)
-                    ClearPedTasks(ped)
-                    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-                    TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
-                    Wait(20000)
-                    ClearPedTasks(ped)
-                    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-                    TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
-                    TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
-                    isBusy = false
-                else
-                    RSGCore.Functions.Notify('too close to another plant!', 'error')
-                end
-            else
-                RSGCore.Functions.Notify('you are not in a farming zone!', 'error')
-            end
-        end
-    else
-        -- if farming zones are off (false)
-        if Config.EnableJob == true then
-            local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
-            if PlayerJob == Config.JobRequired then
-                local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
-                local ped = PlayerPedId()
-                if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and isBusy == false then
-                    isBusy = true
-                    TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
-                    Wait(10000)
-                    ClearPedTasks(ped)
-                    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-                    TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
-                    Wait(20000)
-                    ClearPedTasks(ped)
-                    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-                    TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
-                    TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
-                    isBusy = false
-                else
-                    RSGCore.Functions.Notify('too close to another plant!', 'error')
-                end
-            end
-        else
-            local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
-            local ped = PlayerPedId()
-            if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and isBusy == false then
-                isBusy = true
-                TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
-                Wait(10000)
-                ClearPedTasks(ped)
-                SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-                TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
-                Wait(20000)
-                ClearPedTasks(ped)
-                SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-                TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
-                TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
-                isBusy = false
-            else
-                RSGCore.Functions.Notify('too close to another plant!', 'error')
-            end
-        end
+    local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
+    local ped = PlayerPedId()
+    local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
+
+    -- Farming Zone
+    if Config.UseFarmingZones then
+        farmZoneRequired = true
     end
+
+    -- Seed Based Farm Zone
+    if Config.UseSeedBasedZones then
+        seedBasedZones = true
+    end
+
+    -- Job not required
+    if Config.EnableJob and PlayerJob ~= Config.JobRequired and LocalPlayer.state.isLoggedIn then
+        RSGCore.Functions.Notify('Only farmers can plant seeds!', 'error', 3000)
+
+        return
+    end
+
+    -- Not in Farming Zone
+    if farmZoneRequired and not inFarmZone then
+        RSGCore.Functions.Notify('You are not in a farming zone!', 'error', 3000)
+
+        return
+    end
+
+    -- Wrong Plant Seed on Selected Farm Zone
+    if farmZoneRequired and seedBasedZones and zonename ~= planttype then
+        local msg = 'You may only plant '..zonename..' seeds here!'
+
+        RSGCore.Functions.Notify(msg, 'error', 3000)
+
+        if Config.NotificationSound then
+            NotificationSound(msg)
+        end
+
+        return
+    end
+
+    if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and not isBusy then
+        isBusy = true
+        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
+        Wait(10000)
+        ClearPedTasks(ped)
+        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
+        Wait(20000)
+        ClearPedTasks(ped)
+        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+        TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
+        TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+        isBusy = false
+        farmZoneRequired = false
+
+        return
+    end
+
+    RSGCore.Functions.Notify('Too close to another plant!', 'error', 3000)
 end)
 
 function DrawText3D(x, y, z, text)
@@ -500,3 +487,10 @@ AddEventHandler('rsg-farmer:client:OpenFarmShop', function()
     TriggerServerEvent("inventory:server:OpenInventory", "shop", "FarmShop_"..math.random(1, 99), ShopItems)
 end)
 -- end farm shop
+
+function NotificationSound(msg)
+    local str = Citizen.InvokeNative(0xFA925AC00EB830B9, 10, "LITERAL_STRING", msg, Citizen.ResultAsLong())
+
+    Citizen.InvokeNative(0xFA233F8FE190514C, str)
+    Citizen.InvokeNative(0xE9990552DEC71600)
+end
