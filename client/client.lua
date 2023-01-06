@@ -50,6 +50,8 @@ CreateThread(function()
             -- Seed Based Farm Zone
             if not Config.UseSeedBasedZones then
                 RSGCore.Functions.Notify('You have entered a farm zone!', 'primary', 3000)
+                Wait(3000)
+
                 return
             end
 
@@ -61,6 +63,8 @@ CreateThread(function()
             if Config.NotificationSound then
                 NotificationSound(msg1)
             end
+
+            Wait(3000)
         end)
     end
 end)
@@ -148,7 +152,8 @@ function DestroyPlant()
         isDoingAction = false
         canHarvest = true
     else
-        RSGCore.Functions.Notify('error', 'error')
+        RSGCore.Functions.Notify('Something went wrong!', 'error')
+        Wait(5000)
     end
 end
 
@@ -174,7 +179,8 @@ function HarvestPlant()
         isDoingAction = false
         canHarvest = true
     else
-        RSGCore.Functions.Notify('error', 'error')
+        RSGCore.Functions.Notify('Something went wrong!', 'error')
+        Wait(5000)
     end
 end
 
@@ -194,11 +200,10 @@ Citizen.CreateThread(function()
         local InRange = false
         local ped = PlayerPedId()
         local pos = GetEntityCoords(ped)
-        local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
 
         for k, v in pairs(Config.FarmPlants) do
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, v.x, v.y, v.z, true) < 1.3 and not isDoingAction and not v.beingHarvested and not IsPedInAnyVehicle(PlayerPedId(), false) then
-                if PlayerJob == 'police' then
+                if PlayerJob.name == 'police' then
                     local plant = GetClosestPlant()
                     DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
                     DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
@@ -284,8 +289,10 @@ AddEventHandler('rsg-farmer:client:waterPlant', function()
             entity = v.obj
         end
     end
-    local hasItem1 = RSGCore.Functions.HasItem('water', 1)
-    local hasItem2 = RSGCore.Functions.HasItem('bucket', 1)
+    local item1 = 'bucket'
+    local item2 = 'water'
+    local hasItem1 = RSGCore.Functions.HasItem(item1, 1)
+    local hasItem2 = RSGCore.Functions.HasItem(item2, 1)
     if hasItem1 and hasItem2 then
         Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
         TaskStartScenarioInPlace(ped, `WORLD_HUMAN_BUCKET_POUR_LOW`, 0, true)
@@ -295,7 +302,7 @@ AddEventHandler('rsg-farmer:client:waterPlant', function()
         TriggerServerEvent('rsg-farmer:server:waterPlant', plant.id)
         isDoingAction = false
     else
-        RSGCore.Functions.Notify('You don\'t have the required items!', 'error')
+        RSGCore.Functions.Notify('You need a '..item1..' and '..item2..' to do that!', 'error')
         Wait(5000)
         isDoingAction = false
     end
@@ -313,8 +320,10 @@ AddEventHandler('rsg-farmer:client:feedPlant', function()
             entity = v.obj
         end
     end
-    local hasItem1 = RSGCore.Functions.HasItem('fertilizer', 1)
-    local hasItem2 = RSGCore.Functions.HasItem('bucket', 1)
+    local item1 = 'bucket'
+    local item2 = 'fertilizer'
+    local hasItem1 = RSGCore.Functions.HasItem(item1, 1)
+    local hasItem2 = RSGCore.Functions.HasItem(item2, 1)
     if hasItem1 and hasItem2 then
         Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
         TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FEED_PIGS`, 0, true)
@@ -324,7 +333,7 @@ AddEventHandler('rsg-farmer:client:feedPlant', function()
         TriggerServerEvent('rsg-farmer:server:feedPlant', plant.id)
         isDoingAction = false
     else
-        RSGCore.Functions.Notify('You don\'t have the required items!', 'error')
+        RSGCore.Functions.Notify('You need a '..item1..' and '..item2..' to do that!', 'error')
         Wait(5000)
         isDoingAction = false
     end
@@ -340,7 +349,6 @@ RegisterNetEvent('rsg-farmer:client:plantNewSeed')
 AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed)
     local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
     local ped = PlayerPedId()
-    local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
 
     -- Farming Zone
     if Config.UseFarmingZones then
@@ -353,8 +361,10 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
     end
 
     -- Job not required
-    if Config.EnableJob and PlayerJob ~= Config.JobRequired and LocalPlayer.state.isLoggedIn then
+    if Config.EnableJob and PlayerJob.name ~= Config.JobRequired and LocalPlayer.state.isLoggedIn then
         RSGCore.Functions.Notify('Only farmers can plant seeds!', 'error', 3000)
+
+        Wait(3000)
 
         return
     end
@@ -362,6 +372,8 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
     -- Not in Farming Zone
     if farmZoneRequired and not inFarmZone then
         RSGCore.Functions.Notify('You are not in a farming zone!', 'error', 3000)
+
+        Wait(3000)
 
         return
     end
@@ -375,6 +387,8 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
         if Config.NotificationSound then
             NotificationSound(msg)
         end
+
+        Wait(3000)
 
         return
     end
@@ -398,6 +412,8 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
     end
 
     RSGCore.Functions.Notify('Too close to another plant!', 'error', 3000)
+
+    Wait(3000)
 end)
 
 function DrawText3D(x, y, z, text)
@@ -423,8 +439,7 @@ end
 -- start farm shop
 Citizen.CreateThread(function()
     if Config.EnableJob == true then
-        local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
-        if PlayerJob == Config.JobRequired then
+        if PlayerJob.name == Config.JobRequired then
             for farmshop, v in pairs(Config.FarmShopLocations) do
                 exports['rsg-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
                     type = 'client',
@@ -459,8 +474,7 @@ CreateThread(function()
     while true do
         local sleep = 0
         if Config.EnableJob == true and LocalPlayer.state.isLoggedIn then
-            local PlayerJob = RSGCore.Functions.GetPlayerData().job.name
-            if PlayerJob == Config.JobRequired then
+            if PlayerJob.name == Config.JobRequired then
                 for farmshop, v in pairs(Config.FarmShopLocations) do
                     if v.showmarker == true then
                         Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
