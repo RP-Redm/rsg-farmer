@@ -12,8 +12,8 @@ local zonename = NIL
 local inFarmZone = false
 local farmZoneRequired = false
 local seedBasedZones = false
-isLoggedIn = false
-PlayerJob = {}
+local isLoggedIn = false
+local PlayerJob = {}
 
 RegisterNetEvent('RSGCore:Client:OnPlayerLoaded')
 AddEventHandler('RSGCore:Client:OnPlayerLoaded', function()
@@ -74,24 +74,25 @@ Citizen.CreateThread(function()
     if not Config.UseFarmingZones then return end
 
     for farmzone, v in pairs(Config.FarmZone) do
-        if not v.showblip then return end
+        if v.showblip then
+            local FarmZoneBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.blipcoords)
+            local blipName = 'Farming Zone'
 
-        local FarmZoneBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.blipcoords)
-        local blipName = 'Farming Zone'
+            if Config.UseSeedBasedZones then
+                blipName = v.blipname
+            end
 
-        if Config.UseSeedBasedZones then
-            blipName = v.blipname
+            SetBlipSprite(FarmZoneBlip, 669307703, true)
+            SetBlipScale(FarmZoneBlip, 0.2)
+            Citizen.InvokeNative(0x9CB1A1623062F402, FarmZoneBlip, blipName)
         end
-
-        SetBlipSprite(FarmZoneBlip, 669307703, true)
-        SetBlipScale(FarmZoneBlip, 0.2)
-        Citizen.InvokeNative(0x9CB1A1623062F402, FarmZoneBlip, blipName)
     end
 end)
 
 Citizen.CreateThread(function()
     while true do
         Wait(150)
+
         local ped = PlayerPedId()
         local pos = GetEntityCoords(ped)
         local InRange = false
@@ -106,9 +107,10 @@ Citizen.CreateThread(function()
 
             for z = 1, #SpawnedPlants do
                 local p = SpawnedPlants[z]
-                if p.id ~= Config.FarmPlants[i].id then return end
 
-                hasSpawned = true
+                if p.id == Config.FarmPlants[i].id then
+                    hasSpawned = true
+                end
             end
 
             if hasSpawned then goto continue end
@@ -124,7 +126,7 @@ Citizen.CreateThread(function()
 
             RequestModel(phash)
             data.id = Config.FarmPlants[i].id
-            data.obj = CreateObject(phash, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z -1.2, false, false, false) 
+            data.obj = CreateObject(phash, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z -1.2, false, false, false)
             SetEntityAsMissionEntity(data.obj, true)
             FreezeEntityPosition(data.obj, true)
             table.insert(SpawnedPlants, data)
@@ -146,9 +148,9 @@ function DestroyPlant()
     local ped = PlayerPedId()
 
     for k, v in pairs(HarvestedPlants) do
-        if v == plant.id then return end
-
-        hasDone = true
+        if v == plant.id then
+            hasDone = true
+        end
     end
 
     if hasDone then
@@ -158,10 +160,21 @@ function DestroyPlant()
         return
     end
 
+    FreezeEntityPosition(ped, true)
+
+    if Config.ProgressBar then
+        RSGCore.Functions.Progressbar("destroying-plants", "Destroying the plants...", 5000, false, true, {
+            disableMovement = true,
+            disableCarMovement = true,
+            disableMouse = false,
+            disableCombat = true,
+        }, {}, {}, {}, function()
+        end)
+    end
+
     isDoingAction = true
     table.insert(HarvestedPlants, plant.id)
     TriggerServerEvent('rsg-farmer:server:plantHasBeenHarvested', plant.id)
-    FreezeEntityPosition(ped, true)
     TaskStartScenarioInPlace(ped, `WORLD_HUMAN_CROUCH_INSPECT`, 0, true)
     Wait(5000)
     ClearPedTasks(ped)
@@ -179,9 +192,9 @@ function HarvestPlant()
     local ped = PlayerPedId()
 
     for k, v in pairs(HarvestedPlants) do
-        if v ~= plant.id then return end
-
-        hasDone = true
+        if v == plant.id then
+            hasDone = true
+        end
     end
 
     if hasDone then
@@ -191,10 +204,21 @@ function HarvestPlant()
         return
     end
 
+    FreezeEntityPosition(ped, true)
+
+    if Config.ProgressBar then
+        RSGCore.Functions.Progressbar("harvesting-plants", "Harvesting the plants...", 10000, false, true, {
+            disableMovement = true,
+            disableCarMovement = true,
+            disableMouse = false,
+            disableCombat = true,
+        }, {}, {}, {}, function()
+        end)
+    end
+
     isDoingAction = true
     table.insert(HarvestedPlants, plant.id)
     TriggerServerEvent('rsg-farmer:server:plantHasBeenHarvested', plant.id)
-    FreezeEntityPosition(ped, true)
     TaskStartScenarioInPlace(ped, `WORLD_HUMAN_CROUCH_INSPECT`, 0, true)
     Wait(10000)
     ClearPedTasks(ped)
@@ -207,9 +231,9 @@ end
 
 function RemovePlantFromTable(plantId)
     for k, v in pairs(Config.FarmPlants) do
-        if v.id ~= plantId then return end
-
-        table.remove(Config.FarmPlants, k)
+        if v.id == plantId then
+            table.remove(Config.FarmPlants, k)
+        end
     end
 end
 
@@ -279,10 +303,10 @@ function GetClosestPlant()
     for i = 1, #Config.FarmPlants do
         local xd = GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z, true)
 
-        if xd >= dist then return end
-
-        dist = xd
-        plant = Config.FarmPlants[i]
+        if xd < dist then
+            dist = xd
+            plant = Config.FarmPlants[i]
+        end
     end
 
     return plant
@@ -294,11 +318,11 @@ AddEventHandler('rsg-farmer:client:removePlantObject', function(plant)
     for i = 1, #SpawnedPlants do
         local o = SpawnedPlants[i]
 
-        if o.id ~= plant then return end
-
-        SetEntityAsMissionEntity(o.obj, false)
-        FreezeEntityPosition(o.obj, false)
-        DeleteObject(o.obj)
+        if o.id == plant then
+            SetEntityAsMissionEntity(o.obj, false)
+            FreezeEntityPosition(o.obj, false)
+            DeleteObject(o.obj)
+        end
     end
 end)
 
@@ -313,9 +337,9 @@ AddEventHandler('rsg-farmer:client:waterPlant', function()
     if plant == nil then return end
 
     for k, v in pairs(SpawnedPlants) do
-        if v.id ~= plant.id then return end
-
-        entity = v.obj
+        if v.id == plant.id then
+            entity = v.obj
+        end
     end
 
     local item1 = 'bucket'
@@ -324,8 +348,19 @@ AddEventHandler('rsg-farmer:client:waterPlant', function()
     local hasItem2 = RSGCore.Functions.HasItem(item2, 1)
 
     if hasItem1 and hasItem2 then
-        Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
         FreezeEntityPosition(ped, true)
+
+        if Config.ProgressBar then
+            RSGCore.Functions.Progressbar("watering-plants", "Watering the plants...", 10000, false, true, {
+                disableMovement = true,
+                disableCarMovement = true,
+                disableMouse = false,
+                disableCombat = true,
+            }, {}, {}, {}, function()
+            end)
+        end
+
+        Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
         TaskStartScenarioInPlace(ped, `WORLD_HUMAN_BUCKET_POUR_LOW`, 0, true)
         Wait(10000)
         ClearPedTasks(ped)
@@ -353,9 +388,9 @@ AddEventHandler('rsg-farmer:client:feedPlant', function()
     if plant == nil then return end
 
     for k, v in pairs(SpawnedPlants) do
-        if v.id ~= plant.id then return end
-
-        entity = v.obj
+        if v.id == plant.id then
+            entity = v.obj
+        end
     end
 
     local item1 = 'bucket'
@@ -364,8 +399,19 @@ AddEventHandler('rsg-farmer:client:feedPlant', function()
     local hasItem2 = RSGCore.Functions.HasItem(item2, 1)
 
     if hasItem1 and hasItem2 then
-        Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
         FreezeEntityPosition(ped, true)
+
+        if Config.ProgressBar then
+            RSGCore.Functions.Progressbar("fertilising-plants", "Fertilising the plants...", 14000, false, true, {
+                disableMovement = true,
+                disableCarMovement = true,
+                disableMouse = false,
+                disableCombat = true,
+            }, {}, {}, {}, function()
+            end)
+        end
+
+        Citizen.InvokeNative(0x5AD23D40115353AC, ped, entity, -1)
         TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FEED_PIGS`, 0, true)
         Wait(14000)
         ClearPedTasks(ped)
@@ -389,7 +435,9 @@ end)
 
 -- Plant Seeds
 RegisterNetEvent('rsg-farmer:client:plantNewSeed')
-AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed)
+AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, pHash, seed)
+    if not isLoggedIn then return end
+
     local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
     local ped = PlayerPedId()
 
@@ -404,7 +452,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
     end
 
     -- Job required
-    if Config.EnableJob and PlayerJob.name ~= Config.JobRequired and LocalPlayer.state.isLoggedIn then
+    if Config.EnableJob and PlayerJob.name ~= Config.JobRequired then
         RSGCore.Functions.Notify('Only farmers can plant seeds!', 'error', 3000)
 
         Wait(3000)
@@ -438,18 +486,37 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, hash, seed
 
     if CanPlantSeedHere(pos) and not IsPedInAnyVehicle(PlayerPedId(), false) and not isBusy then
         isBusy = true
+        local anim1 = `WORLD_HUMAN_FARMER_RAKE`
+        local anim2 = `WORLD_HUMAN_FARMER_WEEDING`
+
         FreezeEntityPosition(ped, true)
-        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_RAKE`, 0, true)
+
+        if Config.ProgressBar then
+            RSGCore.Functions.Progressbar("planting-seeds", "Planting "..planttype.." seeds...", 30000, false, true, {
+                disableMovement = true,
+                disableCarMovement = true,
+                disableMouse = false,
+                disableCombat = true,
+            }, {}, {}, {}, function()
+            end)
+        end
+
+        if not IsPedMale(ped) then
+            anim1 = `WORLD_HUMAN_CROUCH_INSPECT`
+            anim2 = `WORLD_HUMAN_CROUCH_INSPECT`
+        end
+
+        -- TaskStartScenarioInPlace(ped, anim1, 0, true)
         Wait(10000)
         ClearPedTasks(ped)
         SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-        TaskStartScenarioInPlace(ped, `WORLD_HUMAN_FARMER_WEEDING`, 0, true)
+        -- TaskStartScenarioInPlace(ped, anim2, 0, true)
         Wait(20000)
         ClearPedTasks(ped)
         SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
         FreezeEntityPosition(ped, false)
         TriggerServerEvent('rsg-farmer:server:removeitem', seed, 1)
-        TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, hash)
+        TriggerServerEvent('rsg-farmer:server:plantNewSeed', planttype, pos, pHash)
         isBusy = false
         farmZoneRequired = false
 
@@ -475,11 +542,9 @@ function CanPlantSeedHere(pos)
     local canPlant = true
 
     for i = 1, #Config.FarmPlants do
-        local distance = GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z, true)
-
-        if distance >= 1.3 then return end
-
-        canPlant = false
+        if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z, true) < 1.3 then
+            canPlant = false
+        end
     end
 
     return canPlant
@@ -493,20 +558,20 @@ Citizen.CreateThread(function()
             event = 'rsg-farmer:client:OpenFarmShop',
         })
 
-        if not v.showblip then return end
+        if v.showblip then
+            local FarmShopBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
 
-        local FarmShopBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
+            SetBlipSprite(FarmShopBlip, GetHashKey(Config.Blip.blipSprite), true)
+            SetBlipScale(FarmShopBlip, Config.Blip.blipScale)
+            Citizen.InvokeNative(0x9CB1A1623062F402, FarmShopBlip, Config.Blip.blipName)
+        end
 
-        SetBlipSprite(FarmShopBlip, GetHashKey(Config.Blip.blipSprite), true)
-        SetBlipScale(FarmShopBlip, Config.Blip.blipScale)
-        Citizen.InvokeNative(0x9CB1A1623062F402, FarmShopBlip, Config.Blip.blipName)
+        if v.showmarker then
+            while true do
+                Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
 
-        if not v.showmarker then return end
-
-        while true do
-            Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
-
-            Wait(0)
+                Wait(0)
+            end
         end
     end
 end)
