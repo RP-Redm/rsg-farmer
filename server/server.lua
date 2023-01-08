@@ -152,7 +152,7 @@ AddEventHandler('rsg-farmer:server:destroyPlant', function(plantId)
             table.remove(Config.FarmPlants, k)
         end
     end
-    TriggerClientEvent('rsg-farmer:client:removePlantObject', src, plantId)
+    TriggerClientEvent('rsg-farmer:client:removePlantObject', -1, plantId)
     TriggerEvent('rsg-farmer:server:PlantRemoved', plantId)
     TriggerEvent('rsg-farmer:server:updatePlants')
     TriggerClientEvent('RSGCore:Notify', src, 'you distroyed the plant', 'success')
@@ -210,7 +210,7 @@ AddEventHandler('rsg-farmer:server:harvestPlant', function(plantId)
         else
             print("something went wrong!")
         end
-        TriggerClientEvent('rsg-farmer:client:removePlantObject', src, plantId)
+        TriggerClientEvent('rsg-farmer:client:removePlantObject', -1, plantId)
         TriggerEvent('rsg-farmer:server:PlantRemoved', plantId)
         TriggerEvent('rsg-farmer:server:updatePlants')
     end
