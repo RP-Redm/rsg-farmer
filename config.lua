@@ -19,6 +19,7 @@ Config.MaxPlantCount = 40 -- maximum plants play can have at any one time
 Config.UseFarmingZones = true -- true = use farmzones / false = no farmzones
 Config.UseSeedBasedZones = true -- true = use seed based farmzones / false = no seed based specific farmzones
 Config.NotificationSound = true -- when UseSeedBasedZones is enabled, play notification sound when the player is doing some actions
+Config.ProgressBar = true -- add progress bar when the player is doing some actions
 Config.CollectWaterTime = 30000 -- time set to collect water
 Config.CollectPooTime = 30000 -- time set to collect fertilizer
 
