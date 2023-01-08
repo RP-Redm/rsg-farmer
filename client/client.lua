@@ -1,11 +1,8 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
 local isBusy = false
-local hash = {}
 local SpawnedPlants = {}
-local InteractedPlant = nil
 local HarvestedPlants = {}
 local canHarvest = true
-local closestPlant = nil
 local isDoingAction = false
 local Zones = {}
 local zonename = NIL
@@ -17,6 +14,12 @@ local PlayerJob = {}
 
 RegisterNetEvent('RSGCore:Client:OnPlayerLoaded')
 AddEventHandler('RSGCore:Client:OnPlayerLoaded', function()
+    isLoggedIn = true
+    PlayerJob = RSGCore.Functions.GetPlayerData().job
+end)
+
+-- For Ensure Command
+AddEventHandler('onResourceStart', function(JobInfo)
     isLoggedIn = true
     PlayerJob = RSGCore.Functions.GetPlayerData().job
 end)
@@ -129,7 +132,8 @@ Citizen.CreateThread(function()
             data.obj = CreateObject(phash, Config.FarmPlants[i].x, Config.FarmPlants[i].y, Config.FarmPlants[i].z -1.2, false, false, false)
             SetEntityAsMissionEntity(data.obj, true)
             FreezeEntityPosition(data.obj, true)
-            table.insert(SpawnedPlants, data)
+            SetModelAsNoLongerNeeded(data.obj)
+            SpawnedPlants[#SpawnedPlants + 1] = data
             hasSpawned = false
 
             ::continue::
@@ -227,14 +231,6 @@ function HarvestPlant()
     TriggerServerEvent('rsg-farmer:server:harvestPlant', plant.id)
     isDoingAction = false
     canHarvest = true
-end
-
-function RemovePlantFromTable(plantId)
-    for k, v in pairs(Config.FarmPlants) do
-        if v.id == plantId then
-            table.remove(Config.FarmPlants, k)
-        end
-    end
 end
 
 -- trigger actions
@@ -506,11 +502,11 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, pHash, see
             anim2 = `WORLD_HUMAN_CROUCH_INSPECT`
         end
 
-        -- TaskStartScenarioInPlace(ped, anim1, 0, true)
+        TaskStartScenarioInPlace(ped, anim1, 0, true)
         Wait(10000)
         ClearPedTasks(ped)
         SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
-        -- TaskStartScenarioInPlace(ped, anim2, 0, true)
+        TaskStartScenarioInPlace(ped, anim2, 0, true)
         Wait(20000)
         ClearPedTasks(ped)
         SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
@@ -593,3 +589,15 @@ function NotificationSound(msg)
     Citizen.InvokeNative(0xFA233F8FE190514C, str)
     Citizen.InvokeNative(0xE9990552DEC71600)
 end
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+
+    for i = 1, #SpawnedPlants do
+        local plants = SpawnedPlants[i].obj
+
+        SetEntityAsMissionEntity(plants, false)
+        FreezeEntityPosition(plants, false)
+        DeleteObject(plants)
+    end
+end)
