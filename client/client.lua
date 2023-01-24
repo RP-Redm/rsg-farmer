@@ -52,14 +52,14 @@ CreateThread(function()
 
             -- Seed Based Farm Zone
             if not Config.UseSeedBasedZones then
-                RSGCore.Functions.Notify('You have entered a farm zone!', 'primary', 3000)
+                RSGCore.Functions.Notify(Lang:t('primary.you_have_entered_farm_zone'), 'primary', 3000)
                 Wait(3000)
 
                 return
             end
 
-            local msg = 'You have entered a '..zonename..' farm zone!'
-            local msg1 = 'You may only plant '..zonename..' seeds here!'
+            local msg = Lang:t('primary.you_have_entered_farm_zone_zonename',{zonename = zonename})
+            local msg1 = Lang:t('primary.you_may_only_plant_seeds_here',{zonename = zonename})
 
             RSGCore.Functions.Notify(msg, 'primary', 3000)
 
@@ -79,7 +79,7 @@ Citizen.CreateThread(function()
     for farmzone, v in pairs(Config.FarmZone) do
         if v.showblip then
             local FarmZoneBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.blipcoords)
-            local blipName = 'Farming Zone'
+            local blipName = Lang:t('blip.farming_zone')
 
             if Config.UseSeedBasedZones then
                 blipName = v.blipname
@@ -158,7 +158,7 @@ function DestroyPlant()
     end
 
     if hasDone then
-        RSGCore.Functions.Notify('Something went wrong!', 'error')
+        RSGCore.Functions.Notify(Lang:t('error.something_went_wrong'), 'error')
         Wait(5000)
 
         return
@@ -167,7 +167,7 @@ function DestroyPlant()
     FreezeEntityPosition(ped, true)
 
     if Config.ProgressBar then
-        RSGCore.Functions.Progressbar("destroying-plants", "Destroying the plants...", 5000, false, true, {
+        RSGCore.Functions.Progressbar("destroying-plants", Lang:t('progressbar.destroying_the_plants'), 5000, false, true, {
             disableMovement = true,
             disableCarMovement = true,
             disableMouse = false,
@@ -202,7 +202,7 @@ function HarvestPlant()
     end
 
     if hasDone then
-        RSGCore.Functions.Notify('Something went wrong!', 'error')
+        RSGCore.Functions.Notify(Lang:t('error.something_went_wrong'), 'error')
         Wait(5000)
 
         return
@@ -211,7 +211,7 @@ function HarvestPlant()
     FreezeEntityPosition(ped, true)
 
     if Config.ProgressBar then
-        RSGCore.Functions.Progressbar("harvesting-plants", "Harvesting the plants...", 10000, false, true, {
+        RSGCore.Functions.Progressbar("harvesting-plants", Lang:t('progressbar.harvesting_plants'), 10000, false, true, {
             disableMovement = true,
             disableCarMovement = true,
             disableMouse = false,
@@ -246,9 +246,9 @@ Citizen.CreateThread(function()
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, v.x, v.y, v.z, true) < 1.3 and not isDoingAction and not v.beingHarvested and not IsPedInAnyVehicle(PlayerPedId(), false) then
                 if PlayerJob.name == 'police' then
                     local plant = GetClosestPlant()
-                    DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
-                    DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
-                    DrawText3D(v.x, v.y, v.z - 0.36, 'Destroy Plant [G]')
+                    DrawText3D(v.x, v.y, v.z, Lang:t('text.thirst_hunger',{thirst = v.thirst,hunger = v.hunger}))
+                    DrawText3D(v.x, v.y, v.z - 0.18, Lang:t('text.growth_quality',{growth = v.growth,quality = v.quality}))
+                    DrawText3D(v.x, v.y, v.z - 0.36, Lang:t('text.destroy_plant'))
                     if IsControlJustPressed(0, RSGCore.Shared.Keybinds['G']) then
                         if v.id == plant.id then
                             DestroyPlant()
@@ -257,9 +257,9 @@ Citizen.CreateThread(function()
                 else
                     if v.growth < 100 then
                         local plant = GetClosestPlant()
-                        DrawText3D(v.x, v.y, v.z, 'Thirst: ' .. v.thirst .. '% - Hunger: ' .. v.hunger .. '%')
-                        DrawText3D(v.x, v.y, v.z - 0.18, 'Growth: ' ..  v.growth .. '% -  Quality: ' .. v.quality.. '%')
-                        DrawText3D(v.x, v.y, v.z - 0.36, 'Water [G] : Feed [J]')
+                        DrawText3D(v.x, v.y, v.z, Lang:t('text.thirst_hunger',{thirst = v.thirst,hunger = v.hunger}))
+                        DrawText3D(v.x, v.y, v.z - 0.18, Lang:t('text.growth_quality',{growth = v.growth,quality = v.quality}))
+                        DrawText3D(v.x, v.y, v.z - 0.36, Lang:t('text.water_feed'))
                         if IsControlJustPressed(0, RSGCore.Shared.Keybinds['G']) then
                             if v.id == plant.id then
                                 TriggerEvent('rsg-farmer:client:waterPlant')
@@ -270,8 +270,8 @@ Citizen.CreateThread(function()
                             end
                         end
                     else
-                        DrawText3D(v.x, v.y, v.z, '[Quality: ' .. v.quality .. ']')
-                        DrawText3D(v.x, v.y, v.z - 0.18, 'Harvest [E]')
+                        DrawText3D(v.x, v.y, v.z,  Lang:t('text.quality'))
+                        DrawText3D(v.x, v.y, v.z - 0.18, Lang:t('text.harvest'))
                         if IsControlJustReleased(0, RSGCore.Shared.Keybinds['E']) and canHarvest then
                             local plant = GetClosestPlant()
                             local callpolice = math.random(1,100)
@@ -347,7 +347,7 @@ AddEventHandler('rsg-farmer:client:waterPlant', function()
         FreezeEntityPosition(ped, true)
 
         if Config.ProgressBar then
-            RSGCore.Functions.Progressbar("watering-plants", "Watering the plants...", 10000, false, true, {
+            RSGCore.Functions.Progressbar("watering-plants", Lang:t('progressbar.watering_the_plants'), 10000, false, true, {
                 disableMovement = true,
                 disableCarMovement = true,
                 disableMouse = false,
@@ -368,7 +368,7 @@ AddEventHandler('rsg-farmer:client:waterPlant', function()
         return
     end
 
-    RSGCore.Functions.Notify('You need a '..item1..' and '..item2..' to do that!', 'error', 3000)
+    RSGCore.Functions.Notify( Lang:t('error.you_need_item_to_do_that',{item1 = item1,item2 = item2}), 'error', 3000)
     Wait(5000)
     isDoingAction = false
 end)
@@ -398,7 +398,7 @@ AddEventHandler('rsg-farmer:client:feedPlant', function()
         FreezeEntityPosition(ped, true)
 
         if Config.ProgressBar then
-            RSGCore.Functions.Progressbar("fertilising-plants", "Fertilising the plants...", 14000, false, true, {
+            RSGCore.Functions.Progressbar("fertilising-plants", Lang:t('progressbar.fertilising_the_plants'), 14000, false, true, {
                 disableMovement = true,
                 disableCarMovement = true,
                 disableMouse = false,
@@ -419,7 +419,7 @@ AddEventHandler('rsg-farmer:client:feedPlant', function()
         return
     end
 
-    RSGCore.Functions.Notify('You need a '..item1..' and '..item2..' to do that!', 'error', 3000)
+    RSGCore.Functions.Notify(Lang:t('error.you_need_item_to_do_that',{item1 = item1,item2 = item2}), 'error', 3000)
     Wait(5000)
     isDoingAction = false
 end)
@@ -449,7 +449,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, pHash, see
 
     -- Job required
     if Config.EnableJob and PlayerJob.name ~= Config.JobRequired then
-        RSGCore.Functions.Notify('Only farmers can plant seeds!', 'error', 3000)
+        RSGCore.Functions.Notify(Lang:t('error.only_farmers_can_plant_seeds'), 'error', 3000)
 
         Wait(3000)
 
@@ -458,7 +458,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, pHash, see
 
     -- Not in Farming Zone
     if farmZoneRequired and not inFarmZone then
-        RSGCore.Functions.Notify('You are not in a farming zone!', 'error', 3000)
+        RSGCore.Functions.Notify(Lang:t('error.you_are_not_in_a_farming_zone'), 'error', 3000)
 
         Wait(3000)
 
@@ -467,7 +467,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, pHash, see
 
     -- Wrong Plant Seed on Seed-based Farm Zone
     if farmZoneRequired and seedBasedZones and zonename ~= planttype then
-        local msg = 'You may only plant '..zonename..' seeds here!'
+        local msg = Lang:t('error.you_may_only_plant_seeds_here',{zonename = zonename})
 
         RSGCore.Functions.Notify(msg, 'error', 3000)
 
@@ -488,7 +488,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, pHash, see
         FreezeEntityPosition(ped, true)
 
         if Config.ProgressBar then
-            RSGCore.Functions.Progressbar("planting-seeds", "Planting "..planttype.." seeds...", 30000, false, true, {
+            RSGCore.Functions.Progressbar("planting-seeds", Lang:t('progressbar.planting_seeds',{planttype = planttype}), 30000, false, true, {
                 disableMovement = true,
                 disableCarMovement = true,
                 disableMouse = false,
@@ -519,7 +519,7 @@ AddEventHandler('rsg-farmer:client:plantNewSeed', function(planttype, pHash, see
         return
     end
 
-    RSGCore.Functions.Notify('Too close to another plant!', 'error', 3000)
+    RSGCore.Functions.Notify(Lang:t('error.too_close_to_another_plant'), 'error', 3000)
 
     Wait(3000)
 end)
@@ -549,7 +549,7 @@ end
 -- start farm shop
 Citizen.CreateThread(function()
     for farmshop, v in pairs(Config.FarmShopLocations) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, 0xF3830D8E, 'Open ' .. v.name, {
+        exports['rsg-core']:createPrompt(v.name, v.coords, 0xF3830D8E, Lang:t('menu.open') .. v.name, {
             type = 'client',
             event = 'rsg-farmer:client:OpenFarmShop',
         })
