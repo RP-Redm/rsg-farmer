@@ -5,6 +5,13 @@ game 'rdr3'
 author 'RexShack#3041'
 description 'rsg-farmer'
 
+shared_scripts {
+    '@rsg-core/shared/locale.lua',
+    'locales/en.lua',
+    'locales/*.lua',
+    'config.lua',
+}
+
 client_scripts {
     '@PolyZone/client.lua',
     '@PolyZone/BoxZone.lua',
@@ -18,10 +25,6 @@ client_scripts {
 server_scripts {
     'server/server.lua',
     '@oxmysql/lib/MySQL.lua',
-}
-
-shared_scripts { 
-    'config.lua',
 }
 
 dependency 'rsg-core'

@@ -123,7 +123,7 @@ AddEventHandler('rsg-farmer:server:plantNewSeed', function(planttype, location, 
     end
 
     if PlantCount >= Config.MaxPlantCount then
-        TriggerClientEvent('RSGCore:Notify', src, 'You already have ' .. Config.MaxPlantCount .. ' plants down', 'error')
+        TriggerClientEvent('RSGCore:Notify', src, Lang:t('error.you_already_have_plants_down',{MaxPlantCount = Config.MaxPlantCount}), 'error')
     else
         table.insert(Config.FarmPlants, SeedData)
         TriggerEvent('rsg-farmer:server:savePlant', SeedData, plantId, citizenid)
@@ -155,7 +155,7 @@ AddEventHandler('rsg-farmer:server:destroyPlant', function(plantId)
     TriggerClientEvent('rsg-farmer:client:removePlantObject', -1, plantId)
     TriggerEvent('rsg-farmer:server:PlantRemoved', plantId)
     TriggerEvent('rsg-farmer:server:updatePlants')
-    TriggerClientEvent('RSGCore:Notify', src, 'you distroyed the plant', 'success')
+    TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.you_distroyed_the_plant'), 'success')
 end)
 
 -- harvest plant and give reward
@@ -198,15 +198,15 @@ AddEventHandler('rsg-farmer:server:harvestPlant', function(plantId)
         if poorQuality then
             Player.Functions.AddItem(item, poorAmount)
             TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[item], "add")
-            TriggerClientEvent('RSGCore:Notify', src, 'You harvest '.. poorAmount ..' '..label, 'success')
+            TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.you_harvest_label',{amount = poorAmount, label = label}), 'success')
         elseif goodQuality then
             Player.Functions.AddItem(item, goodAmount)
             TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[item], "add")
-            TriggerClientEvent('RSGCore:Notify', src, 'You harvest '.. goodAmount ..' '..label, 'success')
+            TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.you_harvest_label',{amount = goodAmount, label = label}), 'success')
         elseif exellentQuality then
             Player.Functions.AddItem(item, exellentAmount)
             TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[item], "add")
-            TriggerClientEvent('RSGCore:Notify', src, 'You harvest '.. exellentAmount ..' '..label, 'success')
+            TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.you_harvest_label',{amount = exellentAmount, label = label}), 'success')
         else
             print("something went wrong!")
         end
