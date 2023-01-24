@@ -1,6 +1,6 @@
 local Translations = {
     error = {
-		something_went_wrong = 'Something went wrong!',
+        something_went_wrong = 'Something went wrong!',
         you_need_item_to_do_that = 'You need a %{item1} and %{item2} to do that!',
         only_farmers_can_plant_seeds = 'Only farmers can plant seeds!',
         you_are_not_in_a_farming_zone = 'You are not in a farming zone!',
@@ -9,7 +9,7 @@ local Translations = {
         you_already_have_plants_down = 'You already have %{MaxPlantCount} plants down',
     },
     success = {
-		you_distroyed_the_plant = 'you distroyed the plant',
+        you_distroyed_the_plant = 'you distroyed the plant',
         you_harvest_label =  'You harvest %{amount} %{label}',
     },
     primary = {
@@ -18,13 +18,13 @@ local Translations = {
         you_may_only_plant_seeds_here = 'You may only plant %{zonename} seeds here!',
     },
     menu = {
-		open = 'Open ',
+        open = 'Open ',
     },
     commands = {
-		var = 'text goes here',
+        var = 'text goes here',
     },
     progressbar = {
-		destroying_the_plants = 'Destroying the plants...',
+        destroying_the_plants = 'Destroying the plants...',
         harvesting_plants = 'Harvesting the plants...',
         watering_the_plants = 'Watering the plants...',
         fertilising_the_plants = 'Fertilising the plants...',
