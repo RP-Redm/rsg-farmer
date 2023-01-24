@@ -32,6 +32,8 @@ local Translations = {
     },
     blip = {
         farming_zone = 'Zona de cultivo',
+        farm_shop = 'Tienda Agricola',
+        farmzone_farm_zone = 'Zona Agricola 1',
     },
     text = {
         thirst_hunger = 'Sed: %{thirst} % - Hambre: %{hunger} %',
@@ -40,6 +42,15 @@ local Translations = {
         water_feed = 'Agua [G] : Alimento [J]',
         quality = '[Calidad: ${quality}]',
         harvest = 'Cosecha [E]',
+    },
+    label = {
+        corn = 'Maiz',
+        sugar = 'Azucar',
+        tobacco = 'Tabaco',
+        carrot = 'Zanahoria',
+        tomato = 'Tomate',
+        broccoli = 'Brocoli',
+        potato = 'Potata',
     }
 }
 

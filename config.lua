@@ -28,7 +28,7 @@ Config.FarmItems = {
     {
         planttype = 'corn',
         item = 'corn',
-        label = 'Corn',
+        label = Lang:t('label.corn'),
         -- reward settings
         poorRewardMin = 1,
         poorRewardMax = 2,
@@ -40,7 +40,7 @@ Config.FarmItems = {
     {
         planttype = 'sugar',
         item = 'sugar',
-        label = 'Sugar',
+        label =  Lang:t('label.sugar'),
         -- reward settings
         poorRewardMin = 1,
         poorRewardMax = 2,
@@ -52,7 +52,7 @@ Config.FarmItems = {
     {
         planttype = 'tobacco',
         item = 'tobacco',
-        label = 'Tobacco',
+        label = Lang:t('label.tobacco'),
         -- reward settings
         poorRewardMin = 1,
         poorRewardMax = 2,
@@ -64,7 +64,7 @@ Config.FarmItems = {
     {
         planttype = 'carrot',
         item = 'carrot',
-        label = 'Carrot',
+        label = Lang:t('label.carrot'),
         -- reward settings
         poorRewardMin = 1,
         poorRewardMax = 2,
@@ -76,7 +76,7 @@ Config.FarmItems = {
     {
         planttype = 'tomato',
         item = 'tomato',
-        label = 'Tomato',
+        label = Lang:t('label.tomato'),
         -- reward settings
         poorRewardMin = 1,
         poorRewardMax = 2,
@@ -88,7 +88,7 @@ Config.FarmItems = {
     {
         planttype = 'broccoli',
         item = 'broccoli',
-        label = 'Broccoli',
+        label = Lang:t('label.broccoli'),
         -- reward settings
         poorRewardMin = 1,
         poorRewardMax = 2,
@@ -100,7 +100,7 @@ Config.FarmItems = {
     {
         planttype = 'potato',
         item = 'potato',
-        label = 'Potato',
+        label = Lang:t('label.potato'),
         -- reward settings
         poorRewardMin = 1,
         poorRewardMax = 2,
@@ -113,7 +113,7 @@ Config.FarmItems = {
 -- end plant settings
 
 Config.Blip = {
-    blipName = 'Farm Shop', -- Config.Blip.blipName
+    blipName = Lang:t('blip.farm_shop'), -- Config.Blip.blipName
     blipSprite = 'blip_shop_market_stall', -- Config.Blip.blipSprite
     blipScale = 0.2 -- Config.Blip.blipScale
 }
@@ -133,7 +133,7 @@ Config.FarmShop = {
 
 -- farm shop locations
 Config.FarmShopLocations = {
-    {name = 'Farm Shop', coords = vector3(-249.43, 685.72, 113.33), showblip = true, showmarker = true},
+    {name = Lang:t('blip.farm_shop'), coords = vector3(-249.43, 685.72, 113.33), showblip = true, showmarker = true},
 }
 
 -- farm zone settings
@@ -148,7 +148,7 @@ Config.FarmZone = {
             vector2(-349.36514282227, 941.19653320313)
         },
         name = "farmzone1",
-        blipname = 'farmzone1 Farm Zone',
+        blipname =  Lang:t('blip.farmzone_farm_zone'),
         minZ = 115.78807830811,
         maxZ = 122.06151580811,
         showblip = true,

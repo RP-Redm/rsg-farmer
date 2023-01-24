@@ -32,6 +32,8 @@ local Translations = {
     },
     blip = {
         farming_zone = 'Farming Zone',
+        farm_shop = 'Farm Shop',
+        farmzone_farm_zone = 'farmzone1 Farm Zone',
     },
     text = {
         thirst_hunger = 'Thirst: %{thirst} % - Hunger: %{hunger} %',
@@ -40,6 +42,15 @@ local Translations = {
         water_feed = 'Water [G] : Feed [J]',
         quality = '[Quality: ${quality}]',
         harvest = 'Harvest [E]',
+    },
+    label = {
+        corn = 'Corn',
+        sugar = 'Sugar',
+        tobacco = 'Tobacco',
+        carrot = 'Carrot',
+        tomato = 'Tomato',
+        broccoli = 'Broccoli',
+        potato = 'Potato',
     }
 }
 
