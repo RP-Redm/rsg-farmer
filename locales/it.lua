@@ -7,10 +7,16 @@ local Translations = {
         you_may_only_plant_seeds_here = 'Puoi piantare solo %{zonename} semi qui!',
         too_close_to_another_plant = 'Troppo vicino a un\'altra pianta!',
         you_already_have_plants_down = 'Hai già %{MaxPlantCount} piante abbattute',
+        only_farmers_can_collect_water = 'Solo gli agricoltori possono raccogliere l'acqua!',
+        you_need_bucket_collect_water = 'Hai bisogno di un secchio per raccogliere l'acqua!',
+        only_farmers_can_collect_poo = 'Solo i contadini possono raccogliere le feci!',
+        you_need_a_bucket_collect_fertilizer = 'Hai bisogno di un secchio per raccogliere il fertilizzante!',
     },
     success = {
         you_distroyed_the_plant = 'Hai distrutto la pianta',
         you_harvest_label = 'Raccogli %{amount} %{label}',
+        youve_got_bucketful_water = "Hai un secchio pieno d'acqua!",
+        youve_got_bucketful_fertilizer = "Hai un secchio pieno di fertilizzante!",
     },
     primary = {
         you_have_entered_farm_zone = 'Sei entrato in una zona agricola!',
@@ -29,6 +35,8 @@ local Translations = {
         watering_the_plants = 'Innaffiando piante...',
         fertilising_the_plants = 'Concimazione delle piante...',
         planting_seeds = 'Piantando semi di %{planttype}...',
+        collecting_water = 'Raccogliendo Acqua...',
+        collecting_poo = 'Raccogliendo Escrementi...',		 
     },
     blip = {
         farming_zone = 'Zona Agricola',
@@ -42,6 +50,8 @@ local Translations = {
         water_feed = 'Annaffia [G] : Concima [J]',
         quality = '[Qualità: ${quality}]',
         harvest = 'Raccogli [E]',
+        collect_water = 'Raccogli Acqua [J]',
+        pickup_poo = 'Raccogli Escrementi [J]',
     },
     label = {
         corn = 'Mais',
