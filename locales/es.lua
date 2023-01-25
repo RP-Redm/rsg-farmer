@@ -7,10 +7,16 @@ local Translations = {
         you_may_only_plant_seeds_here = '¡Solo puedes plantar %{zonename} semillas aquí!',
         too_close_to_another_plant = '¡Demasiado cerca de otra planta!',
         you_already_have_plants_down = 'Tienes %{MaxPlantCount} plantas',
+        only_farmers_can_collect_water = '¡Solo los agricultores pueden recoger agua!',
+        you_need_bucket_collect_water = '¡Necesitas un cubo para recoger agua!',
+        only_farmers_can_collect_poo = '¡Solo los agricultores pueden recoger caca!',
+        you_need_a_bucket_collect_fertilizer = '¡Necesitas un balde para recolectar fertilizante!',
     },
     success = {
         you_distroyed_the_plant = 'destruiste la planta',
         you_harvest_label =  'Cosechastes %{amount} %{label}',
+        youve_got_bucketful_water = "¡Tienes un balde lleno de agua!",
+        youve_got_bucketful_fertilizer = "¡Tienes un balde lleno de fertilizante!",
     },
     primary = {
         you_have_entered_farm_zone = '¡Has entrado en una zona de cultivo!',
@@ -29,6 +35,8 @@ local Translations = {
         watering_the_plants = 'Regando las plantas...',
         fertilising_the_plants = 'Fertilizando las plantas...',
         planting_seeds = 'Plantando %{planttype} semillas...',
+        collecting_water = 'Agarrando agua...',
+        collecting_poo = 'Agarrando estierlco...',
     },
     blip = {
         farming_zone = 'Zona de cultivo',
@@ -42,6 +50,8 @@ local Translations = {
         water_feed = 'Agua [G] : Alimento [J]',
         quality = '[Calidad: ${quality}]',
         harvest = 'Cosecha [E]',
+        collect_water = 'Agarrar agua [J]',
+        pickup_poo = 'Agarrar estiercol [J]',
     },
     label = {
         corn = 'Maiz',

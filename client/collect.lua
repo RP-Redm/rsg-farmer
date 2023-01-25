@@ -24,7 +24,7 @@ Citizen.CreateThread(function()
             if #(pos - objectPos) >= 2.0 then goto continue end
 
             awayFromObject = false
-            DrawText3Ds(objectPos.x, objectPos.y, objectPos.z + 1.0, "Collect Water [J]")
+            DrawText3Ds(objectPos.x, objectPos.y, objectPos.z + 1.0,  Lang:t('text.collect_water'))
 
             if not IsControlJustReleased(0, RSGCore.Shared.Keybinds['J']) then goto continue end
 
@@ -64,7 +64,7 @@ Citizen.CreateThread(function()
 
             awayFromObject = false
 
-            DrawText3Ds(objectPos.x, objectPos.y, objectPos.z + 0.3, "Pickup Poo [J]")
+            DrawText3Ds(objectPos.x, objectPos.y, objectPos.z + 0.3, Lang:t('text.pickup_poo'))
 
             if not IsControlJustReleased(0, RSGCore.Shared.Keybinds['J']) then goto continue end
 
@@ -90,23 +90,23 @@ AddEventHandler('rsg-farmer:client:collectwater', function()
 
     -- Job required
     if Config.EnableJob and PlayerJob ~= Config.JobRequired and LocalPlayer.state.isLoggedIn then
-        RSGCore.Functions.Notify('Only farmers can collect water!', 'error', 3000)
+        RSGCore.Functions.Notify( Lang:t('error.only_farmers_can_collect_water'), 'error', 3000)
         return
     end
 
     if not hasItem then
-        RSGCore.Functions.Notify('You need a bucket to collect water!', 'error', 3000)
+        RSGCore.Functions.Notify(Lang:t('error.you_need_bucket_collect_water'), 'error', 3000)
         return
     end
 
-    RSGCore.Functions.Progressbar("collecting-water", "Collecting Water...", Config.CollectWaterTime, false, true, {
+    RSGCore.Functions.Progressbar("collecting-water", Lang:t('progressbar.collecting_water'), Config.CollectWaterTime, false, true, {
         disableMovement = true,
         disableCarMovement = false,
         disableMouse = false,
         disableCombat = true,
     }, {}, {}, {}, function() -- Done
         TriggerServerEvent('rsg-farmer:server:giveitem', 'water', 1)
-        RSGCore.Functions.Notify('You\'ve got a bucketful of water!', 'success', 3000)
+        RSGCore.Functions.Notify(Lang:t('success.youve_got_bucketful_water'), 'success', 3000)
     end)
 end)
 
@@ -118,23 +118,23 @@ AddEventHandler('rsg-farmer:client:collectpoo', function()
 
     -- Job required
     if Config.EnableJob and PlayerJob ~= Config.JobRequired and LocalPlayer.state.isLoggedIn then
-        RSGCore.Functions.Notify('Only farmers can collect poo!', 'error', 3000)
+        RSGCore.Functions.Notify(Lang:t('error.only_farmers_can_collect_poo'), 'error', 3000)
         return
     end
 
     if not hasItem then
-        RSGCore.Functions.Notify('You need a bucket to collect fertilizer!', 'error', 3000)
+        RSGCore.Functions.Notify(Lang:t('error.you_need_a_bucket_collect_fertilizer'), 'error', 3000)
         return
     end
 
-    RSGCore.Functions.Progressbar("collecting-poo", "Collecting Poo...", Config.CollectPooTime, false, true, {
+    RSGCore.Functions.Progressbar("collecting-poo", Lang:t('progressbar.collecting_poo'), Config.CollectPooTime, false, true, {
         disableMovement = true,
         disableCarMovement = false,
         disableMouse = false,
         disableCombat = true,
     }, {}, {}, {}, function() -- Done
         TriggerServerEvent('rsg-farmer:server:giveitem', 'fertilizer', 1)
-        RSGCore.Functions.Notify('You\'ve got a bucketful of fertilizer!', 'success', 3000)
+        RSGCore.Functions.Notify(Lang:t('success.youve_got_bucketful_fertilizer'), 'success', 3000)
     end)
 end)
 

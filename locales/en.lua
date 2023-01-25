@@ -7,10 +7,16 @@ local Translations = {
         you_may_only_plant_seeds_here = 'You may only plant %{zonename} seeds here!',
         too_close_to_another_plant = 'Too close to another plant!',
         you_already_have_plants_down = 'You already have %{MaxPlantCount} plants down',
+        only_farmers_can_collect_water = 'Only farmers can collect water!',
+        you_need_bucket_collect_water = 'You need a bucket to collect water!',
+        only_farmers_can_collect_poo = 'Only farmers can collect poo!',
+        you_need_a_bucket_collect_fertilizer = 'You need a bucket to collect fertilizer!',
     },
     success = {
         you_distroyed_the_plant = 'you distroyed the plant',
         you_harvest_label =  'You harvest %{amount} %{label}',
+        youve_got_bucketful_water = "You\'ve got a bucketful of water!",
+        youve_got_bucketful_fertilizer = "You\'ve got a bucketful of fertilizer!",
     },
     primary = {
         you_have_entered_farm_zone = 'You have entered a farm zone!',
@@ -29,6 +35,8 @@ local Translations = {
         watering_the_plants = 'Watering the plants...',
         fertilising_the_plants = 'Fertilising the plants...',
         planting_seeds = 'Planting %{planttype} seeds...',
+        collecting_water = 'Collecting Water...',
+        collecting_poo = 'Collecting Poo...',
     },
     blip = {
         farming_zone = 'Farming Zone',
@@ -42,6 +50,8 @@ local Translations = {
         water_feed = 'Water [G] : Feed [J]',
         quality = '[Quality: ${quality}]',
         harvest = 'Harvest [E]',
+        collect_water = 'Collect Water [J]',
+        pickup_poo = 'Pickup Poo [J]',
     },
     label = {
         corn = 'Corn',
