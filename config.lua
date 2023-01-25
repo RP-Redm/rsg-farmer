@@ -16,7 +16,7 @@ Config.Degrade = {min = 3, max = 5}
 Config.QualityDegrade = {min = 8, max = 12}
 Config.GrowthIncrease = {min = 10, max = 20}
 Config.MaxPlantCount = 40 -- maximum plants play can have at any one time
-Config.UseFarmingZones = false -- true = use farmzones / false = no farmzones
+Config.UseFarmingZones = true -- true = use farmzones / false = no farmzones
 Config.UseSeedBasedZones = true -- true = use seed based farmzones / false = no seed based specific farmzones
 Config.NotificationSound = true -- when UseSeedBasedZones is enabled, play notification sound when the player is doing some actions
 Config.ProgressBar = true -- add progress bar when the player is doing some actions
