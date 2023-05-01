@@ -50,8 +50,8 @@ local Translations = {
         water_feed = 'Water [G] : Feed [J]',
         quality = '[Quality: ${quality}]',
         harvest = 'Harvest [E]',
-        collect_water = 'Collect Water [J]',
-        pickup_poo = 'Pickup Poo [J]',
+        collect_water = 'Collect Water',
+        pickup_poo = 'Pickup Poo',
     },
     label = {
         corn = 'Corn',
