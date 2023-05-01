@@ -25,7 +25,7 @@ CreateThread(function()
         options = {
             {
                 type = "client",
-                event = 'rsg-farmer:client:collectwater',
+                event = 'rsg-farmer:client:collectpoo',
                 icon = "far fa-eye",
                 label = Lang:t('text.pickup_poo'),
                 distance = 2.0
