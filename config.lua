@@ -147,7 +147,7 @@ Config.FarmZone = {
             vector2(-369.53713989258, 944.28149414063),
             vector2(-349.36514282227, 941.19653320313)
         },
-        name = "farmzone1",
+        name = "carrot",
         blipname =  Lang:t('blip.farmzone_farm_zone'),
         minZ = 115.78807830811,
         maxZ = 122.06151580811,
