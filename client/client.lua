@@ -236,50 +236,52 @@ end
 -- trigger actions
 Citizen.CreateThread(function()
     while true do
-        Wait(0)
+        local t = 1000
 
-        local InRange = false
-        local ped = PlayerPedId()
-        local pos = GetEntityCoords(ped)
+        if inFarmZone then
+            local ped = PlayerPedId()
+            local pos = GetEntityCoords(ped)
+            t = 4
 
-        for k, v in pairs(Config.FarmPlants) do
-            if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, v.x, v.y, v.z, true) < 1.3 and not isDoingAction and not v.beingHarvested and not IsPedInAnyVehicle(PlayerPedId(), false) then
-                if PlayerJob.name == 'police' then
-                    local plant = GetClosestPlant()
-                    DrawText3D(v.x, v.y, v.z, Lang:t('text.thirst_hunger',{thirst = v.thirst,hunger = v.hunger}))
-                    DrawText3D(v.x, v.y, v.z - 0.18, Lang:t('text.growth_quality',{growth = v.growth,quality = v.quality}))
-                    DrawText3D(v.x, v.y, v.z - 0.36, Lang:t('text.destroy_plant'))
-                    if IsControlJustPressed(0, RSGCore.Shared.Keybinds['G']) then
-                        if v.id == plant.id then
-                            DestroyPlant()
-                        end
-                    end
-                else
-                    if v.growth < 100 then
+            for k, v in pairs(Config.FarmPlants) do
+                if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, v.x, v.y, v.z, true) < 1.3 and not isDoingAction and not v.beingHarvested and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                    if PlayerJob.name == 'police' then
                         local plant = GetClosestPlant()
                         DrawText3D(v.x, v.y, v.z, Lang:t('text.thirst_hunger',{thirst = v.thirst,hunger = v.hunger}))
                         DrawText3D(v.x, v.y, v.z - 0.18, Lang:t('text.growth_quality',{growth = v.growth,quality = v.quality}))
-                        DrawText3D(v.x, v.y, v.z - 0.36, Lang:t('text.water_feed'))
+                        DrawText3D(v.x, v.y, v.z - 0.36, Lang:t('text.destroy_plant'))
                         if IsControlJustPressed(0, RSGCore.Shared.Keybinds['G']) then
                             if v.id == plant.id then
-                                TriggerEvent('rsg-farmer:client:waterPlant')
-                            end
-                        elseif IsControlJustPressed(0, RSGCore.Shared.Keybinds['J']) then
-                            if v.id == plant.id then
-                                TriggerEvent('rsg-farmer:client:feedPlant')
+                                DestroyPlant()
                             end
                         end
                     else
-                        DrawText3D(v.x, v.y, v.z,  Lang:t('text.quality'))
-                        DrawText3D(v.x, v.y, v.z - 0.18, Lang:t('text.harvest'))
-                        if IsControlJustReleased(0, RSGCore.Shared.Keybinds['E']) and canHarvest then
+                        if v.growth < 100 then
                             local plant = GetClosestPlant()
-                            local callpolice = math.random(1,100)
-                            if v.id == plant.id then
-                                HarvestPlant()
-                                if callpolice > 95 then
-                                    local coords = GetEntityCoords(PlayerPedId())
-                                    -- alert police action here
+                            DrawText3D(v.x, v.y, v.z, Lang:t('text.thirst_hunger',{thirst = v.thirst,hunger = v.hunger}))
+                            DrawText3D(v.x, v.y, v.z - 0.18, Lang:t('text.growth_quality',{growth = v.growth,quality = v.quality}))
+                            DrawText3D(v.x, v.y, v.z - 0.36, Lang:t('text.water_feed'))
+                            if IsControlJustPressed(0, RSGCore.Shared.Keybinds['G']) then
+                                if v.id == plant.id then
+                                    TriggerEvent('rsg-farmer:client:waterPlant')
+                                end
+                            elseif IsControlJustPressed(0, RSGCore.Shared.Keybinds['J']) then
+                                if v.id == plant.id then
+                                    TriggerEvent('rsg-farmer:client:feedPlant')
+                                end
+                            end
+                        else
+                            DrawText3D(v.x, v.y, v.z,  Lang:t('text.quality'))
+                            DrawText3D(v.x, v.y, v.z - 0.18, Lang:t('text.harvest'))
+                            if IsControlJustReleased(0, RSGCore.Shared.Keybinds['E']) and canHarvest then
+                                local plant = GetClosestPlant()
+                                local callpolice = math.random(1,100)
+                                if v.id == plant.id then
+                                    HarvestPlant()
+                                    if callpolice > 95 then
+                                        local coords = GetEntityCoords(PlayerPedId())
+                                        -- alert police action here
+                                    end
                                 end
                             end
                         end
@@ -287,6 +289,8 @@ Citizen.CreateThread(function()
                 end
             end
         end
+
+        Wait(t)
     end
 end)
 
@@ -564,9 +568,19 @@ Citizen.CreateThread(function()
 
         if v.showmarker then
             while true do
-                Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
+                local ped = PlayerPedId()
+                local coords = GetEntityCoords(ped)
+                local coord = v.coords
+                local distance = #(coords - coord)
+                local t = 1000
 
-                Wait(0)
+                if distance <= 10.0 then
+                    t = 4
+
+                    Citizen.InvokeNative(0x2A32FAA57B937173, 0x07DCE236, v.coords, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 255, 215, 0, 155, false, false, false, 1, false, false, false)
+                end
+
+                Wait(t)
             end
         end
     end
